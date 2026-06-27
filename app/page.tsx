@@ -11,8 +11,8 @@ export default function HomePage() {
       <SiteNav />
       <main>
         <Hero />
-        <HowItWorks />
         <ProductWorkspace />
+        <HowItWorks />
         <TrustPillars />
       </main>
       <SiteFooter />

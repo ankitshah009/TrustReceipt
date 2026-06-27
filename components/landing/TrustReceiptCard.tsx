@@ -137,7 +137,7 @@ function TrustReceiptCardComponent() {
 
   if (!isComplete) {
     return (
-      <div className="tr-card rounded-2xl overflow-hidden">
+      <div className="tr-receipt-card rounded-2xl overflow-hidden">
         <div className="tr-card-header px-5 py-4">
           <h3 className="text-[15px] font-semibold tracking-tight text-white flex items-center gap-2">
             <Shield className="w-4 h-4 text-slate-400" strokeWidth={1.75} />
@@ -160,7 +160,7 @@ function TrustReceiptCardComponent() {
   }
 
   return (
-    <div className="tr-card rounded-2xl overflow-hidden">
+    <div className="tr-receipt-card rounded-2xl overflow-hidden">
       <div className="tr-card-header px-5 py-4 flex items-start justify-between gap-3">
         <div>
           <h3 className="text-[15px] font-semibold tracking-tight text-white flex items-center gap-2">

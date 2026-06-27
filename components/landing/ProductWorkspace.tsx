@@ -8,7 +8,6 @@ import {
   FileText,
   Loader2,
   Pencil,
-  Play,
   Send,
   Shield,
   User,
@@ -157,54 +156,51 @@ export function ProductWorkspace() {
   }, [approveHuman, generateCryptographicReceipt]);
 
   return (
-    <section id="app" className="scroll-mt-20 border-y border-slate-200/60 bg-white py-20">
+    <section id="app" className="scroll-mt-14 border-y border-zinc-200/80 bg-white py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-start">
-          {/* Left column — workflow input & progress */}
-          <div className="space-y-6">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Your workflow
-              </p>
-              <h2 className="text-2xl font-semibold tracking-tight text-slate-900 mt-1.5">
-                Turn a product brief into publish-ready content
-              </h2>
-              <p className="text-sm text-slate-500 mt-2.5 leading-relaxed">
-                Product brief to LinkedIn post — every agent step verified and signed.
-              </p>
-            </div>
+        <header className="mb-10 max-w-xl">
+          <p className="tr-section-label">Workflow</p>
+          <h2 className="tr-headline mt-2 text-2xl sm:text-3xl">
+            Turn a product brief into publish-ready content
+          </h2>
+          <p className="mt-3 text-[15px] leading-relaxed text-zinc-600">
+            Agents plan, draft, and check policy. Trust Runtime verifies every step and issues a signed receipt.
+          </p>
+        </header>
 
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/[0.03] space-y-4">
+        <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-14">
+          <div className="space-y-5">
+            <div className="tr-card p-5 sm:p-6 space-y-4">
               <label className="block">
-                <span className="text-xs font-medium text-slate-500">Product brief</span>
+                <span className="text-xs font-medium text-zinc-500">Product brief</span>
                 <textarea
                   value={brief}
                   onChange={(e) => setBrief(e.target.value)}
                   disabled={isRunning}
                   rows={4}
-                  className="mt-1.5 w-full text-sm border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/25 disabled:opacity-60 resize-y bg-white"
-                  placeholder="Describe what you want the agents to create…"
+                  className="mt-1.5 w-full resize-y rounded-lg border border-zinc-200 bg-white p-3 text-sm text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 disabled:opacity-60"
+                  placeholder="Create a LinkedIn launch post from this product brief. Only use approved claims."
                 />
               </label>
 
               <label className="block">
-                <span className="text-xs font-medium text-slate-400">Intent</span>
+                <span className="text-xs font-medium text-zinc-400">Intent</span>
                 <input
                   type="text"
                   value={intent}
                   onChange={(e) => setIntent(e.target.value)}
                   disabled={isRunning}
-                  className="mt-1 w-full text-sm border border-slate-100 rounded-lg px-3 py-2 text-slate-600 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20 disabled:opacity-60"
+                  className="mt-1 w-full rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-600/15 disabled:opacity-60"
                   placeholder="What outcome should this content achieve?"
                 />
               </label>
 
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={loadCompliantExample}
                   disabled={isRunning}
-                  className="text-xs px-3 py-1.5 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                  className="tr-btn-secondary px-3 py-1.5 text-xs disabled:opacity-50"
                 >
                   Compliant brief
                 </button>
@@ -212,7 +208,7 @@ export function ProductWorkspace() {
                   type="button"
                   onClick={loadRiskyExample}
                   disabled={isRunning}
-                  className="text-xs px-3 py-1.5 rounded-full border border-red-200/80 text-red-600 hover:bg-red-50/80 disabled:opacity-50 transition-colors"
+                  className="rounded-md border border-red-200/90 px-3 py-1.5 text-xs text-red-700 transition-colors hover:bg-red-50 disabled:opacity-50"
                 >
                   Policy violation test
                 </button>
@@ -222,31 +218,28 @@ export function ProductWorkspace() {
                 type="button"
                 onClick={handleRun}
                 disabled={isRunning || !brief.trim()}
-                className="w-full flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold bg-[#2563eb] hover:bg-[#1e4fc0] text-white rounded-xl disabled:opacity-60 transition-colors shadow-sm shadow-[#2563eb]/20"
+                className="tr-btn-primary w-full py-3 disabled:opacity-60"
               >
                 {isRunning ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     Running workflow…
                   </>
                 ) : (
-                  <>
-                    <Play className="w-4 h-4" />
-                    Run workflow
-                  </>
+                  'Run workflow'
                 )}
               </button>
             </div>
 
             <AnimatePresence>
-              {hasStarted && (
+              {hasStarted ? (
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
-                  className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/[0.03] space-y-5"
+                  className="tr-card p-5 space-y-5"
                 >
-                  <div className="flex w-full items-start overflow-x-auto pb-1 -mx-1 px-1">
+                  <div className="flex w-full items-start overflow-x-auto pb-1">
                     {PIPELINE_STEPS.map((step, idx) => (
                       <PipelineStep
                         key={step.key}
@@ -262,9 +255,7 @@ export function ProductWorkspace() {
                   </div>
 
                   <div>
-                    <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400 mb-2">
-                      Trust runtime
-                    </p>
+                    <p className="tr-section-label mb-2">Trust runtime</p>
                     <TrustPillarsBar
                       hasStarted={hasStarted}
                       isRunning={isRunning}
@@ -276,11 +267,11 @@ export function ProductWorkspace() {
                     />
                   </div>
                 </motion.div>
-              )}
+              ) : null}
             </AnimatePresence>
 
             <AnimatePresence>
-              {isComplete && (
+              {isComplete ? (
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -288,21 +279,21 @@ export function ProductWorkspace() {
                   className="space-y-3"
                 >
                   {blocked ? (
-                    <div className="rounded-2xl border border-red-200/80 bg-red-50/50 p-5">
+                    <div className="rounded-xl border border-red-200/90 bg-red-50/40 p-5">
                       <div className="flex items-start gap-3">
-                        <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-red-900">Needs review</p>
-                          <p className="text-sm text-red-800/90 mt-1 leading-relaxed">
-                            Compliance flagged unsupported or unsourced claims before publication.
+                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-red-950">Needs review</p>
+                          <p className="mt-1 text-sm leading-relaxed text-red-900/90">
+                            Unsupported or unsourced claims were flagged before publication.
                           </p>
-                          {complianceResult && (
-                            <ul className="mt-3 space-y-1.5 text-sm text-red-800">
+                          {complianceResult ? (
+                            <ul className="mt-3 space-y-1.5 text-sm text-red-900">
                               {complianceResult.reasons
                                 .filter((r) => r.status === 'FAIL')
                                 .map((r, i) => (
                                   <li key={i} className="flex gap-2">
-                                    <span className="text-red-500 shrink-0">✗</span>
+                                    <span className="shrink-0 text-red-500">✗</span>
                                     <span>
                                       <span className="font-medium">{r.rule}</span>
                                       {' — '}
@@ -311,75 +302,74 @@ export function ProductWorkspace() {
                                   </li>
                                 ))}
                             </ul>
-                          )}
-                          {writerOutput && (
-                            <div className="mt-4 p-3 bg-white/70 rounded-xl border border-red-100 text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
+                          ) : null}
+                          {writerOutput ? (
+                            <div className="mt-4 whitespace-pre-wrap rounded-lg border border-red-100 bg-white/80 p-3 text-sm leading-relaxed text-zinc-700">
                               {writerOutput.draft}
                             </div>
-                          )}
-                          {humanReviewStatus === 'none' && (
+                          ) : null}
+                          {humanReviewStatus === 'none' ? (
                             <button
                               type="button"
                               onClick={routeToHuman}
-                              className="mt-4 text-sm px-4 py-2 bg-white border border-red-200 rounded-xl hover:bg-red-50/80 transition-colors text-red-900"
+                              className="tr-btn-secondary mt-4 border-red-200 text-red-900 hover:bg-red-50"
                             >
                               Route to human reviewer
                             </button>
-                          )}
-                          {humanReviewStatus === 'pending' && (
+                          ) : null}
+                          {humanReviewStatus === 'pending' ? (
                             <div className="mt-4 flex flex-wrap gap-2">
                               <button
                                 type="button"
                                 onClick={handleHumanApprove}
-                                className="text-sm px-4 py-2 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors"
+                                className="tr-btn-primary px-4 py-2 text-sm"
                               >
                                 Approve override
                               </button>
                               <button
                                 type="button"
                                 onClick={rejectHuman}
-                                className="text-sm px-4 py-2 border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors"
+                                className="tr-btn-secondary px-4 py-2 text-sm"
                               >
                                 Reject
                               </button>
                             </div>
-                          )}
-                          {humanReviewStatus === 'rejected' && (
-                            <p className="mt-3 text-sm text-red-800 font-medium">
+                          ) : null}
+                          {humanReviewStatus === 'rejected' ? (
+                            <p className="mt-3 text-sm font-medium text-red-900">
                               Publication rejected by reviewer.
                             </p>
-                          )}
+                          ) : null}
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/[0.03]">
-                      <div className="flex items-center gap-2 text-slate-900 text-sm font-semibold mb-3">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <div className="tr-card p-5">
+                      <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-zinc-950">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                         Safe to publish
                       </div>
-                      {publishedPost && (
-                        <div className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed border-t border-slate-100 pt-3">
+                      {publishedPost ? (
+                        <div className="whitespace-pre-wrap border-t border-zinc-100 pt-3 text-sm leading-relaxed text-zinc-700">
                           {publishedPost}
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   )}
 
                   <button
                     type="button"
                     onClick={handleReset}
-                    className="text-sm text-slate-500 hover:text-slate-800 transition-colors"
+                    className="text-sm text-zinc-500 transition-colors hover:text-zinc-900"
                   >
                     Start over
                   </button>
                 </motion.div>
-              )}
+              ) : null}
             </AnimatePresence>
           </div>
 
-          {/* Right column — sticky Trust Receipt */}
-          <div className="lg:sticky lg:top-24">
+          <div className="lg:sticky lg:top-20">
             <TrustReceiptCard />
           </div>
         </div>

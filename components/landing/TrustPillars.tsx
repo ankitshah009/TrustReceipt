@@ -33,7 +33,7 @@ const TRUST_PILLARS: TrustPillar[] = [
 
 export function TrustPillars() {
   return (
-    <section className="border-b border-zinc-200/80 bg-zinc-50/50 py-20 sm:py-28">
+    <section id="security" className="border-b border-zinc-200/80 bg-white py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-6">
         <header className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-medium tracking-[-0.01em] text-zinc-500">
