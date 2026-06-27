@@ -303,13 +303,13 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
           break;
         }
         case 'PLANNER': {
-          result = await executePlannerStep(state.brief, state.mode);
+          result = await executePlannerStep(state.brief, state.intent, state.mode);
           set({ plannerOutput: result.output as import('./types').PlannerOutput });
           break;
         }
         case 'WRITER': {
           const planner = state.plannerOutput!;
-          result = await executeWriterStep(state.brief, planner, state.mode);
+          result = await executeWriterStep(state.brief, state.intent, planner, state.mode);
           set({ writerOutput: result.output as import('./types').WriterOutput });
           break;
         }

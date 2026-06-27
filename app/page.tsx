@@ -140,7 +140,7 @@ export default function TrustReceiptPage() {
               <span className="font-medium text-slate-700">HACKATHON GOAL</span>
             </div>
             <div className="text-[12px] max-w-[210px] leading-tight px-3 py-1 bg-white border border-slate-200 rounded-2xl text-slate-600">
-              Build a live demo of the runtime trust layer for AI content generation and publishing.
+              Cryptographically verifiable trust layer for real AI agent workflows.
             </div>
           </div>
         </div>
@@ -181,27 +181,27 @@ export default function TrustReceiptPage() {
             </div>
 
             <div className="flex gap-2">
-              <button onClick={() => { setBrief("Battery lasts 12 hours under real-world mixed use. All claims backed by lab tests."); }} className="text-xs px-3 py-1.5 rounded-xl border">Load happy brief</button>
-              <button onClick={() => { setBrief("Battery lasts 24 hours. Revolutionary. No compromises."); }} className="text-xs px-3 py-1.5 rounded-xl border border-red-200 text-red-600">Load off-policy brief</button>
+              <button onClick={() => { setBrief("Battery lasts 12 hours under real-world mixed use. All claims backed by lab tests."); }} className="text-xs px-3 py-1.5 rounded-xl border">Load compliant brief</button>
+              <button onClick={() => { setBrief("Battery lasts 24 hours. Revolutionary. No compromises."); }} className="text-xs px-3 py-1.5 rounded-xl border border-red-200 text-red-600">Load risky brief</button>
             </div>
           </div>
 
           {/* CENTER — DEMO WORKFLOW (image match) */}
           <div className="lg:col-span-6">
             <div className="flex items-center justify-between mb-2 px-1">
-              <div className="font-semibold text-lg tracking-tight">DEMO WORKFLOW: AI CONTENT GENERATION &amp; PUBLISHING</div>
+              <div className="font-semibold text-lg tracking-tight">AI AGENT PIPELINE + TRUST RUNTIME</div>
               <div className="flex gap-2">
                 <button 
                   onClick={handleRunHappy} 
                   disabled={isRunning}
                   className="flex items-center gap-2 px-5 py-2 text-sm font-semibold bg-[#2563eb] hover:bg-[#1e4fc0] text-white rounded-2xl disabled:opacity-60 transition">
-                  <Play className="w-4 h-4" /> Run Full Demo
+                  <Play className="w-4 h-4" /> Run Full Pipeline
                 </button>
                 <button 
                   onClick={handleRunOffPolicy} 
                   disabled={isRunning}
                   className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-rose-600 hover:bg-rose-700 text-white rounded-2xl disabled:opacity-60">
-                  Run Off-Policy
+                  Run Risky Brief
                 </button>
                 <button onClick={reset} className="px-4 py-2 text-sm border rounded-2xl">Reset</button>
               </div>
@@ -385,11 +385,11 @@ export default function TrustReceiptPage() {
                 <button 
                   onClick={handleRunHappy} 
                   disabled={isRunning}
-                  className="flex-1 py-1.5 text-xs bg-[#2563eb] text-white rounded-xl disabled:opacity-60">Run my brief (happy)</button>
+                  className="flex-1 py-1.5 text-xs bg-[#2563eb] text-white rounded-xl disabled:opacity-60">Run my brief (strict)</button>
                 <button 
                   onClick={handleRunOffPolicy} 
                   disabled={isRunning}
-                  className="flex-1 py-1.5 text-xs bg-rose-600 text-white rounded-xl disabled:opacity-60">Run my brief (test risk)</button>
+                  className="flex-1 py-1.5 text-xs bg-rose-600 text-white rounded-xl disabled:opacity-60">Run my brief (risky)</button>
               </div>
               <div className="text-[10px] text-slate-500 mt-1">Edit the claim above — the runtime will catch or approve in real time.</div>
             </div>
@@ -398,7 +398,7 @@ export default function TrustReceiptPage() {
 
         {/* Footer bar matching image */}
         <div className="mt-7 flex flex-wrap gap-x-4 gap-y-1 text-xs border-t pt-3 text-slate-500">
-          <span className="font-medium text-[#2563eb]">BUILT FOR THIS HACKATHON</span>
+          <span className="font-medium text-[#2563eb]">REAL AGENT TRUST PLATFORM</span>
           <span>3–4 Hours Build • MVP in a day</span>
           <span>Real-time Verification • No batch. No delay.</span>
           <span>Human-in-the-Loop • Smart review thresholds</span>

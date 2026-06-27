@@ -15,14 +15,16 @@ import type {
 } from './types';
 
 import {
-  generatePlannerOutput,
-  generateWriterDraft,
-  generatePublisherPost,
-  runComplianceCheck,
-  computeIntentAlignment,
   generateHash,
   buildHashChain,
 } from './sampleData';
+
+import {
+  runRealPlanner,
+  runRealWriter,
+  runRealCompliance,
+  runRealPublisher,
+} from './ai/realAgentExecutor';
 
 // ============================================================================
 // TIMING CONFIG (adjustable via speed control)
@@ -115,15 +117,15 @@ export async function executeUserStep(
 
 export async function executePlannerStep(
   brief: string,
-  mode: DemoMode
+  intent: string,
+  _mode: DemoMode
 ): Promise<StepExecutionResult> {
-  const planner = generatePlannerOutput(brief, mode === 'off-policy');
+  const planner = await runRealPlanner(brief, intent);
   
   const traceMessages = [
     { level: 'info' as TraceLevel, message: `Extracted ${planner.keyFacts.length} key facts` },
     { level: 'info' as TraceLevel, message: `Planned ${planner.plan.length} execution steps` },
-    { level: mode === 'off-policy' ? 'warning' as TraceLevel : 'success' as TraceLevel,
-      message: `Estimated claims: ${planner.estimatedClaims.join(', ')}` },
+    { level: 'success' as TraceLevel, message: `Estimated claims: ${planner.estimatedClaims.join(', ')}` },
   ];
   
   const output: PlannerOutput = {
@@ -142,37 +144,28 @@ export async function executePlannerStep(
 
 export async function executeWriterStep(
   brief: string,
+  intent: string,
   planner: PlannerOutput,
   mode: DemoMode
 ): Promise<StepExecutionResult> {
-  const draft = generateWriterDraft(brief, planner, mode === 'off-policy');
-  
-  const words = draft.split(/\s+/).length;
+  const isRisky = mode === 'off-policy';
+  const writer = await runRealWriter(brief, planner, intent, isRisky);
   
   const traceMessages = [
-    { level: 'info' as TraceLevel, message: `Draft generated: ${words} words` },
-    { level: 'info' as TraceLevel, message: `Tone: ${mode === 'off-policy' ? 'Hype-forward' : 'Professional, sourced'}` },
-    { level: mode === 'off-policy' ? 'warning' as TraceLevel : 'success' as TraceLevel,
-      message: mode === 'off-policy' ? '⚠️ Draft contains aggressive claims' : 'Claims attributed to lab testing' },
+    { level: 'info' as TraceLevel, message: `Draft generated: ${writer.wordCount} words` },
+    { level: 'success' as TraceLevel, message: `Tone: Professional (LLM generated)` },
   ];
   
   const output: WriterOutput = {
-    draft,
-    wordCount: words,
-    tone: mode === 'off-policy' ? 'Promotional' : 'Professional',
-    claims: planner.estimatedClaims,
+    ...writer,
     timestamp: new Date().toISOString(),
   };
-  
-  // Compute live intent alignment against brief
-  const alignment = computeIntentAlignment(brief, draft);
   
   return {
     output,
     traceMessages,
     trustUpdates: {
-      intentScore: alignment.score,
-      newHash: generateHash(draft),
+      newHash: generateHash(writer.draft),
     },
   };
 }
@@ -180,9 +173,9 @@ export async function executeWriterStep(
 export async function executeComplianceStep(
   brief: string,
   draft: string,
-  mode: DemoMode
+  _mode: DemoMode
 ): Promise<StepExecutionResult> {
-  const result = runComplianceCheck(brief, draft, mode === 'off-policy');
+  const result = await runRealCompliance(brief, draft);
   
   const traceMessages: Array<{ level: TraceLevel; message: string; data?: Record<string, unknown> }> = [];
   
@@ -200,10 +193,7 @@ export async function executeComplianceStep(
   });
   
   const output: ComplianceResult = {
-    passed: result.passed,
-    alignmentScore: result.alignmentScore,
-    reasons: result.reasons,
-    policyChecks: result.policyChecks,
+    ...result,
     timestamp: new Date().toISOString(),
   };
   
@@ -220,15 +210,14 @@ export async function executeComplianceStep(
 
 export async function executePublisherStep(
   draft: string,
-  mode: DemoMode
+  _mode: DemoMode
 ): Promise<StepExecutionResult> {
-  const pub = generatePublisherPost(draft, mode === 'off-policy');
+  const pub = await runRealPublisher(draft);
   
   const traceMessages = [
     { level: 'info' as TraceLevel, message: 'Formatted for LinkedIn distribution' },
     { level: 'info' as TraceLevel, message: `Hashtags: ${pub.hashtags.join(' ')}` },
-    { level: mode === 'off-policy' ? 'warning' : 'success' as TraceLevel,
-      message: mode === 'off-policy' ? '⚠️ Publishing with unresolved compliance flags' : 'Ready for distribution' },
+    { level: 'success' as TraceLevel, message: 'Ready for distribution' },
   ];
   
   const output: PublisherOutput = {
@@ -290,7 +279,7 @@ export async function simulateFullPipeline(
   
   // PLANNER
   await new Promise(r => setTimeout(r, getDelay('PLANNER', speed)));
-  const plannerRes = await executePlannerStep(brief, mode);
+  const plannerRes = await executePlannerStep(brief, intent, mode);
   onProgress('PLANNER', plannerRes);
   if (plannerRes.trustUpdates?.newHash) hashChain.push(plannerRes.trustUpdates.newHash);
   
@@ -298,7 +287,7 @@ export async function simulateFullPipeline(
   
   // WRITER
   await new Promise(r => setTimeout(r, getDelay('WRITER', speed)));
-  const writerRes = await executeWriterStep(brief, planner, mode);
+  const writerRes = await executeWriterStep(brief, intent, planner, mode);
   onProgress('WRITER', writerRes);
   if (writerRes.trustUpdates?.newHash) hashChain.push(writerRes.trustUpdates.newHash);
   

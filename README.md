@@ -1,7 +1,7 @@
 # Trust Receipt
 ## The proof behind every AI decision.
 
-**Live demo for AGI House Hackathon 2026** — a runtime trust layer that continuously verifies AI agent workflows and produces a cryptographically signed, verifiable Trust Receipt.
+**Real platform** — a runtime trust layer that uses actual LLM agents to generate content and produces a cryptographically signed, verifiable Trust Receipt using browser Web Crypto (ECDSA P-256).
 
 ![Trust Receipt UI](https://via.placeholder.com/1200x630?text=Trust+Receipt+Demo+UI)
 
@@ -27,19 +27,27 @@
 
 See updated DEMO_SCRIPT.md for the exact 7-min arc (start with off-policy for max impact).
 
-## Quick start (to win)
+## Quick start (real agents)
+
 ```bash
-cd /Users/ankitparagshah/GitHub/trust-receipt-temp
 npm install
 npm run dev
 # Open http://localhost:3000
 ```
 
+**Important for real execution (using Grok API):**
+1. Set your Grok / xAI API key:
+   - `GROK_API_KEY=your-key-here` 
+   - or `XAI_API_KEY=your-key-here`
+   - You can put it in `.env.local`
+2. The pipeline now calls **real Grok models** for Planner, Writer, Compliance judgment, and Publisher steps.
+3. No more simulated templates — every agent step is powered by Grok.
+
 Then:
-1. Click **Run Full Demo (Happy Path)** — watch everything go green + receipt appear.
-2. Click **Run with Off-Policy Brief** — show the dramatic failure path + human review.
-3. Click **Verify Receipt** + **Download JSON** — the wow cryptographic moment.
-4. Edit the brief textarea and rerun to show live grounding.
+1. Click **Run Full Pipeline** — real LLM agents execute each step.
+2. Click **Run Risky Brief** — give the agents a challenging brief and watch the trust layer catch violations.
+3. Click **Verify Receipt** + **Download JSON** — real ECDSA signature + merkle proof.
+4. Edit the brief and rerun.
 
 ## For judges (script)
 "See the problem — AI agents can publish anything with zero proof.
@@ -49,26 +57,39 @@ Approved path succeeds. Here's the signed receipt.
 I can download it and verify the signature in the browser — zero backend, cryptographically sound.
 This is the runtime trust layer."
 
-## Tech highlights (hackathon winning)
-- 100% browser-native crypto receipts (no secrets shipped)
-- Deterministic yet rich agent simulation (consistent impressive output)
-- Real-time state machine + beautiful visual feedback
-- Human-in-the-loop gate as first-class citizen
-- Tamper-evident download + instant verification
+## Tech highlights (real platform)
+- **Real Grok 4.3 agents**: Planner, Writer, Compliance, and Publisher steps use actual LLM calls via xAI Grok API (configurable to other Grok models).
+- 100% browser-native cryptographic receipts (ECDSA P-256 via Web Crypto) — no secrets shipped.
+- Real-time trust runtime with hash chaining and Merkle roots.
+- Human-in-the-loop as first-class signed step.
+- Tamper-evident receipts with instant verification.
+- Fully extensible — replace any agent with your own prompts/models.
 
-Built to feel production-grade in 4 hours. Extensible to any multi-agent system.
+## Running with Grok API
+```bash
+# 1. Set your xAI key
+echo "GROK_API_KEY=your_xai_key_here" > .env.local
 
-## Next steps after hackathon
-- Swap simulated agents with real LangGraph/CrewAI + signed step events
-- Add Merkle tree provenance + on-chain anchoring option
-- Policy-as-code editor + custom rules
+# 2. (Optional) Choose a different Grok model
+# echo "GROK_MODEL=grok-build-0.1" >> .env.local
+
+npm install
+npm run dev
+```
+
+Open http://localhost:3000
+
+Use real briefs — the agents will generate actual content using Grok 4.3 (or your chosen model).
+
+## How the Trust Layer works (real, not simulated)
+1. Real agents execute the workflow using Grok.
+2. Each output is hashed into a chain.
+3. A signed receipt is created using real ECDSA P-256 in the browser.
+4. You can verify the receipt offline — the signature proves it hasn't been tampered with.
 
 ---
 
-Run `npm run build` before you present to guarantee no surprises.
-
-This is ready to win. Let's go. 🛡️
-npm install
+Run `npm run build` to verify everything works in production mode.
 
 # 2. Run dev server
 npm run dev
