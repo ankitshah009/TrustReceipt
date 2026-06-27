@@ -15,7 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Trust Receipt | The proof behind every AI decision",
-  description: "Runtime trust layer for AI. Verifies every step from intent to execution and generates cryptographic receipts that prove why outputs can be trusted. Built for AGI House Hackathon.",
+  description:
+    "Enterprise runtime trust for AI agents. Verify identity, intent, and policy at every step — then export cryptographically signed receipts your team and auditors can validate independently.",
   icons: {
     icon: "/favicon.ico",
   },
@@ -29,9 +30,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased subpixel-antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#f8fafc] text-slate-900">
+      <body className="min-h-full flex flex-col bg-white text-slate-900 antialiased [font-feature-settings:'rlig'_1,'calt'_1,'ss01'_1]">
         {children}
         <Toaster position="top-center" richColors closeButton />
       </body>
