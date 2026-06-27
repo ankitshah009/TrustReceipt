@@ -19,6 +19,9 @@ import type {
   ReceiptData,
 } from './types';
 
+import type { ObserverState } from './observer/types';
+import { observeStep, OBSERVER_AGENT_ID } from './observer/observerAgent';
+
 import {
   DEFAULT_BRIEF,
   DEFAULT_INTENT,
@@ -52,6 +55,7 @@ const INITIAL_IDENTITY: Identity = {
     'writer-agent@v1.3.2',
     'compliance-agent@v1.3.2',
     'publisher-agent@v1.3.2',
+    OBSERVER_AGENT_ID,
   ],
   sessionId: `sess_${Date.now().toString(36)}`,
 };
@@ -92,6 +96,14 @@ const INITIAL_TRUST_RUNTIME: TrustRuntimeState = {
   provenance: INITIAL_PROVENANCE,
 };
 
+const INITIAL_OBSERVER: ObserverState = {
+  agentId: OBSERVER_AGENT_ID,
+  status: 'idle',
+  records: [],
+  publicationBlocked: false,
+  interventionCount: 0,
+};
+
 // ============================================================================
 // INITIAL STATE
 // ============================================================================
@@ -108,6 +120,7 @@ const INITIAL_STATE: TrustDemoState = {
   publisherOutput: null,
   finalOutput: null,
   trustRuntime: INITIAL_TRUST_RUNTIME,
+  observer: INITIAL_OBSERVER,
   trace: [],
   stepHistory: [],
   controls: {
@@ -172,6 +185,7 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
       receipt: null,
       signedReceipt: null,
       humanReviewStatus: 'none',
+      observer: { ...INITIAL_OBSERVER },
       currentStep: 'IDLE',
     });
   },
@@ -201,6 +215,7 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
       currentStep: 'USER',
       trace: [],
       stepHistory: [],
+      observer: { ...INITIAL_OBSERVER, status: 'watching' },
     });
 
     get().addTrace({ level: 'info', agent: 'SYSTEM', message: `Starting ${state.mode} pipeline run` });
@@ -228,6 +243,7 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
       set({
         controls: { ...get().controls, isRunning: false, isComplete: true },
         currentStep: 'COMPLETE',
+        observer: { ...get().observer, status: 'complete' },
       });
       
       get().addTrace({ level: 'success', agent: 'SYSTEM', message: 'Pipeline complete. Receipt ready.' });
@@ -380,17 +396,88 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
         });
       }
 
-      // Mark step success in history
-      const updatedHistory = state.stepHistory.map((h, i) =>
-        i === state.stepHistory.length - 1
+      const freshState = get();
+      const observedSteps = ['USER', 'PLANNER', 'WRITER', 'COMPLIANCE', 'PUBLISHER', 'OUTPUT'] as const;
+      let observerRecordId: string | undefined;
+
+      if (observedSteps.includes(step as (typeof observedSteps)[number])) {
+        const recordIndex = freshState.observer.records.length;
+        const observerRecord = observeStep({
+          step: step as (typeof observedSteps)[number],
+          brief: freshState.brief,
+          intent: freshState.intent,
+          mode: freshState.mode,
+          stepOutput: result.output,
+          complianceResult: freshState.complianceResult ?? undefined,
+          trustRuntime: freshState.trustRuntime,
+          publicationBlocked: freshState.observer.publicationBlocked,
+          recordIndex,
+        });
+
+        observerRecordId = observerRecord.id;
+        const nextPublicationBlocked =
+          freshState.observer.publicationBlocked || observerRecord.blocked;
+
+        set({
+          observer: {
+            ...freshState.observer,
+            records: [...freshState.observer.records, observerRecord],
+            publicationBlocked: nextPublicationBlocked,
+            blockReason: observerRecord.blocked
+              ? observerRecord.summary
+              : freshState.observer.blockReason,
+            interventionCount:
+              freshState.observer.interventionCount +
+              (observerRecord.interventionApplied ? 1 : 0),
+            status: observerRecord.interventionApplied
+              ? 'intervened'
+              : freshState.observer.status === 'idle'
+                ? 'watching'
+                : freshState.observer.status,
+          },
+        });
+
+        const traceLevel =
+          observerRecord.verdict === 'allow'
+            ? 'success'
+            : observerRecord.verdict === 'warn'
+              ? 'warning'
+              : 'danger';
+
+        get().addTrace({
+          level: traceLevel,
+          agent: OBSERVER_AGENT_ID,
+          message: `[${observerRecord.verdict.toUpperCase()}] ${observerRecord.summary}`,
+          data: {
+            step,
+            verdict: observerRecord.verdict,
+            blocked: observerRecord.blocked,
+            interventionApplied: observerRecord.interventionApplied,
+            checks: observerRecord.checks,
+          },
+        });
+
+        if (observerRecord.interventionApplied) {
+          get().addTrace({
+            level: 'warning',
+            agent: OBSERVER_AGENT_ID,
+            message:
+              '🛑 Observer intervention — publication blocked; pipeline continues to OUTPUT',
+          });
+        }
+      }
+
+      // Mark step success in history (pipeline completes all steps even when Observer blocks)
+      const historyState = get();
+      const updatedHistory = historyState.stepHistory.map((h, i) =>
+        i === historyState.stepHistory.length - 1
           ? {
               ...h,
-              status: (step === 'COMPLIANCE' && state.complianceResult && !state.complianceResult.passed)
-                ? 'failed' as const
-                : 'success' as const,
+              status: 'success' as const,
               endTime: new Date().toISOString(),
               output: result.output,
               duration: Date.now() - new Date(h.startTime!).getTime(),
+              observerRecordId,
             }
           : h
       );
@@ -442,6 +529,7 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
       set({
         controls: { ...get().controls, isRunning: false, isComplete: true },
         currentStep: 'COMPLETE',
+        observer: { ...get().observer, status: 'complete' },
       });
       get()._generateReceipt();
       get().generateCryptographicReceipt();
@@ -479,9 +567,13 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
       },
       trustRuntime: {
         ...INITIAL_TRUST_RUNTIME,
-        identity: INITIAL_IDENTITY,
+        identity: {
+          ...INITIAL_IDENTITY,
+          sessionId: `sess_${Date.now().toString(36)}`,
+        },
         authority: { ...INITIAL_AUTHORITY, checkedAt: new Date().toISOString() },
       },
+      observer: { ...INITIAL_OBSERVER },
     });
   },
 
@@ -634,6 +726,8 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
       compliancePassed: comp?.passed ?? false,
       provenanceRoot: state.trustRuntime.provenance.rootHash,
       steps: state.stepHistory,
+      observerRecords: state.observer.records,
+      publicationBlocked: state.observer.publicationBlocked,
     };
 
     set({ receipt });
@@ -652,20 +746,57 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
     const state = get();
     if (!state.finalOutput || !state.receipt) return;
 
+    const observerBlocked = state.observer.publicationBlocked;
+    const compliancePassed = state.complianceResult?.passed ?? false;
+
     const verifs = [
       { name: 'Identity Verified', status: 'passed' as const, value: 'All agents verified' },
       { name: 'Authority Verified', status: 'passed' as const, value: 'All actions authorized' },
-      { name: 'Intent Alignment', status: 'passed' as const, value: `${state.trustRuntime.intentAlignment.score}% Aligned` },
-      { name: 'Policy Compliance', status: state.complianceResult?.passed ? ('passed' as const) : ('failed' as const), value: state.complianceResult?.passed ? 'Passed' : 'Violations' },
+      {
+        name: 'Intent Alignment',
+        status: observerBlocked || state.trustRuntime.intentAlignment.driftDetected
+          ? ('failed' as const)
+          : ('passed' as const),
+        value: `${state.trustRuntime.intentAlignment.score}% Aligned`,
+      },
+      {
+        name: 'Policy Compliance',
+        status: compliancePassed && !observerBlocked ? ('passed' as const) : ('failed' as const),
+        value: compliancePassed ? 'Passed' : 'Violations',
+      },
+      {
+        name: 'Observer Gate',
+        status: observerBlocked ? ('failed' as const) : ('passed' as const),
+        value: observerBlocked
+          ? `NEEDS REVIEW — ${state.observer.blockReason ?? 'publication blocked'}`
+          : 'Publication cleared',
+      },
       { name: 'Source Grounding', status: 'passed' as const, value: '100% supported' },
       { name: 'Provenance', status: 'passed' as const, value: 'Complete' },
     ];
 
-    const trace = state.stepHistory.map((h, i) => ({
-      step: i + 1,
-      agent: h.step,
-      summary: (h.output as any)?.draft?.slice(0, 60) || (h.output as any)?.publishedPost?.slice(0,60) || '',
-    }));
+    const trace = state.stepHistory.map((h, i) => {
+      const output = h.output as { draft?: string; publishedPost?: string } | undefined;
+      return {
+        step: i + 1,
+        agent: h.step,
+        summary: output?.draft?.slice(0, 60) || output?.publishedPost?.slice(0, 60) || '',
+      };
+    });
+
+    const observerSummary = {
+      publicationBlocked: state.observer.publicationBlocked,
+      interventionCount: state.observer.interventionCount,
+      records: state.observer.records.map((r) => ({
+        id: r.id,
+        step: r.step,
+        verdict: r.verdict,
+        summary: r.summary,
+        timestamp: r.timestamp,
+        blocked: r.blocked,
+        interventionApplied: r.interventionApplied,
+      })),
+    };
 
     const signed = await generateSignedReceipt({
       brief: state.brief,
@@ -676,6 +807,7 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
       executionTrace: trace,
       hashChain: state.trustRuntime.provenance.hashChain,
       provenanceRoot: state.receipt.provenanceRoot,
+      observerSummary,
     });
 
     set({ signedReceipt: signed });

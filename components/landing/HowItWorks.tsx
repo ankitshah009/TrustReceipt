@@ -13,12 +13,18 @@ const HOW_IT_WORKS_STEPS: HowItWorksStep[] = [
   },
   {
     number: "02",
-    title: "Trust Runtime verifies every step",
+    title: "Observer Agent verifies every step",
     description:
-      "Before the workflow advances, each action is scored across identity, authority, intent, policy, and provenance. Failures block progression with a clear reason.",
+      "An independent observer watches each agent action in parallel — scoring identity, authority, intent, policy, and provenance. If a step violates policy, the observer blocks publication but the workflow still completes so you see the full output and receipt.",
   },
   {
     number: "03",
+    title: "Trust Runtime scores the run",
+    description:
+      "Before the workflow advances, each action is evaluated against five trust dimensions. Failures are recorded with a clear reason and routed for human review when required.",
+  },
+  {
+    number: "04",
     title: "You get a Trust Receipt",
     description:
       "A signed artifact records what ran, what passed, and why the output holds up. Verify it offline with the public key — no callback to our servers required.",

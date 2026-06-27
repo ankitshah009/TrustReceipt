@@ -3,6 +3,8 @@
  * End-to-end agentic content pipeline with real-time trust runtime verification
  */
 
+import type { ObserverState, ObserverStepRecord } from './observer/types';
+
 // ============================================================================
 // WORKFLOW STEPS
 // ============================================================================
@@ -166,6 +168,7 @@ export interface StepHistoryEntry {
   endTime?: string;
   output?: unknown;
   duration?: number;
+  observerRecordId?: string;
 }
 
 // ============================================================================
@@ -184,6 +187,8 @@ export interface ReceiptData {
   compliancePassed: boolean;
   provenanceRoot: string;
   steps: StepHistoryEntry[];
+  observerRecords: ObserverStepRecord[];
+  publicationBlocked: boolean;
 }
 
 // ============================================================================
@@ -222,6 +227,9 @@ export interface TrustDemoState {
   
   // Trust runtime (live)
   trustRuntime: TrustRuntimeState;
+
+  // Observer agent (continuous verification)
+  observer: ObserverState;
   
   // Execution trace
   trace: TraceEntry[];

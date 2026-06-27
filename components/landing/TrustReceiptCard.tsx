@@ -4,6 +4,7 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 import { Download, Shield, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTrustDemo } from '@/lib/store';
+import { useObserverState } from '@/lib/useObserverState';
 
 export const TRUST_CHECKS = [
   'Identity Verified',
@@ -47,6 +48,7 @@ function TrustReceiptCardComponent() {
     generateCryptographicReceipt,
   } = useTrustDemo();
 
+  const observer = useObserverState();
   const { isComplete } = controls;
   const [verifyResult, setVerifyResult] = useState<{ valid: boolean; message: string } | null>(
     null,
@@ -55,8 +57,15 @@ function TrustReceiptCardComponent() {
 
   const complianceFailed = complianceResult != null && !complianceResult.passed;
   const approvedDespiteFailure = humanReviewStatus === 'approved';
-  const blocked = complianceFailed && !approvedDespiteFailure;
+  const blocked =
+    observer.publicationBlocked ||
+    (complianceFailed && !approvedDespiteFailure);
   const safeToPublish = isComplete && !blocked && humanReviewStatus !== 'rejected';
+
+  const observerPassed =
+    isComplete &&
+    !observer.publicationBlocked &&
+    observer.interventionCount === 0;
 
   const failureReason = useMemo(() => {
     if (!complianceResult || complianceResult.passed) return null;
@@ -91,6 +100,15 @@ function TrustReceiptCardComponent() {
         value: isComplete ? 'Hash chain intact' : '—',
         ok: isComplete,
       },
+      {
+        label: 'Observer Agent',
+        value: !isComplete
+          ? '—'
+          : observer.interventionCount > 0
+            ? `Continuous verification · ${observer.interventionCount} intervention${observer.interventionCount === 1 ? '' : 's'}`
+            : 'Continuous verification',
+        ok: observerPassed || approvedDespiteFailure,
+      },
       { label: 'Human Review', value: review.text, ok: review.ok },
     ];
   }, [
@@ -100,6 +118,9 @@ function TrustReceiptCardComponent() {
     approvedDespiteFailure,
     blocked,
     humanReviewStatus,
+    observer.interventionCount,
+    observerPassed,
+    approvedDespiteFailure,
   ]);
 
   const handleDownload = useCallback(() => {
@@ -178,7 +199,7 @@ function TrustReceiptCardComponent() {
 
       <div className="px-5 pb-5">
         <div className="mb-5">
-          {safeToPublish ? (
+          {safeToPublish && !observer.publicationBlocked ? (
             <div className="inline-flex flex-col gap-1">
               <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-emerald-500/90">
                 Publication status
@@ -193,7 +214,7 @@ function TrustReceiptCardComponent() {
                 Publication status
               </span>
               <span className="text-base font-semibold tracking-tight text-amber-200">
-                Needs review
+                {observer.publicationBlocked ? 'Blocked by observer' : 'Needs review'}
               </span>
             </div>
           )}

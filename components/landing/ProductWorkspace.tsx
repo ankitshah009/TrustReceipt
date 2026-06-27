@@ -2,9 +2,8 @@
 
 import React, { useCallback, useMemo } from 'react';
 import {
-  AlertTriangle,
   Bot,
-  CheckCircle2,
+  Eye,
   FileText,
   Loader2,
   Pencil,
@@ -28,8 +27,11 @@ import {
   type PipelineStepConfig,
   type PipelineStepStatus,
 } from './PipelineStep';
+import { ObserverAgentPanel } from './ObserverAgentPanel';
+import { PublicationGate } from './PublicationGate';
 import { TrustPillarsBar } from './TrustPillarsBar';
 import { TrustReceiptCard } from './TrustReceiptCard';
+import { WorkflowStepTimeline } from './WorkflowStepTimeline';
 
 export const PIPELINE_STEPS: PipelineStepConfig[] = [
   { key: 'USER', label: 'User', icon: User, description: 'Intent captured' },
@@ -71,8 +73,6 @@ export function ProductWorkspace() {
     controls,
     trustRuntime,
     complianceResult,
-    writerOutput,
-    finalOutput,
     stepHistory,
     humanReviewStatus,
     setBrief,
@@ -80,9 +80,7 @@ export function ProductWorkspace() {
     setMode,
     runDemo,
     reset,
-    routeToHuman,
     approveHuman,
-    rejectHuman,
     generateCryptographicReceipt,
   } = useTrustDemo();
 
@@ -99,15 +97,6 @@ export function ProductWorkspace() {
 
   const complianceFailed = complianceResult != null && !complianceResult.passed;
   const approvedDespiteFailure = humanReviewStatus === 'approved';
-  const blocked = useMemo(
-    () => complianceFailed && !approvedDespiteFailure,
-    [complianceFailed, approvedDespiteFailure],
-  );
-
-  const publishedPost = useMemo(
-    () => finalOutput?.publishedPost ?? writerOutput?.draft ?? null,
-    [finalOutput, writerOutput],
-  );
 
   const stepStatuses = useMemo(
     () =>
@@ -152,7 +141,6 @@ export function ProductWorkspace() {
   const handleHumanApprove = useCallback(async () => {
     approveHuman();
     await generateCryptographicReceipt();
-    toast.success('Review approved — receipt updated');
   }, [approveHuman, generateCryptographicReceipt]);
 
   return (
@@ -231,40 +219,53 @@ export function ProductWorkspace() {
               </button>
             </div>
 
+            <ObserverAgentPanel />
+
             <AnimatePresence>
               {hasStarted ? (
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
-                  className="tr-card p-5 space-y-5"
+                  className="space-y-4"
                 >
-                  <div className="flex w-full items-start overflow-x-auto pb-1">
-                    {PIPELINE_STEPS.map((step, idx) => (
-                      <PipelineStep
-                        key={step.key}
-                        step={step}
-                        status={stepStatuses[idx]}
-                        showConnector={idx < PIPELINE_STEPS.length - 1}
-                        connectorStatus={resolveConnectorStatus(
-                          stepStatuses[idx],
-                          stepStatuses[idx + 1],
-                        )}
-                      />
-                    ))}
-                  </div>
+                  <div className="tr-card p-5 space-y-4">
+                    <div className="flex w-full items-start overflow-x-auto pb-1">
+                      {PIPELINE_STEPS.map((step, idx) => (
+                        <PipelineStep
+                          key={step.key}
+                          step={step}
+                          status={stepStatuses[idx]}
+                          showConnector={idx < PIPELINE_STEPS.length - 1}
+                          connectorStatus={resolveConnectorStatus(
+                            stepStatuses[idx],
+                            stepStatuses[idx + 1],
+                          )}
+                        />
+                      ))}
+                    </div>
 
-                  <div>
-                    <p className="tr-section-label mb-2">Trust runtime</p>
-                    <TrustPillarsBar
-                      hasStarted={hasStarted}
-                      isRunning={isRunning}
-                      isComplete={isComplete}
-                      liveStepIdx={liveStepIdx}
-                      trustRuntime={trustRuntime}
-                      complianceResult={complianceResult}
-                      approvedDespiteFailure={approvedDespiteFailure}
-                    />
+                    <div className="flex items-center gap-2 rounded-lg border border-dashed border-zinc-200 bg-zinc-50/60 px-3 py-2">
+                      <Eye className="h-3.5 w-3.5 shrink-0 text-blue-600" strokeWidth={1.75} />
+                      <p className="text-[11px] leading-snug text-zinc-600">
+                        <span className="font-medium text-zinc-800">Observer</span>
+                        {' — '}
+                        parallel runtime verification on every step (see panel above)
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="tr-section-label mb-2">Trust runtime</p>
+                      <TrustPillarsBar
+                        hasStarted={hasStarted}
+                        isRunning={isRunning}
+                        isComplete={isComplete}
+                        liveStepIdx={liveStepIdx}
+                        trustRuntime={trustRuntime}
+                        complianceResult={complianceResult}
+                        approvedDespiteFailure={approvedDespiteFailure}
+                      />
+                    </div>
                   </div>
                 </motion.div>
               ) : null}
@@ -276,86 +277,10 @@ export function ProductWorkspace() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className="space-y-3"
+                  className="space-y-4"
                 >
-                  {blocked ? (
-                    <div className="rounded-xl border border-red-200/90 bg-red-50/40 p-5">
-                      <div className="flex items-start gap-3">
-                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
-                        <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-red-950">Needs review</p>
-                          <p className="mt-1 text-sm leading-relaxed text-red-900/90">
-                            Unsupported or unsourced claims were flagged before publication.
-                          </p>
-                          {complianceResult ? (
-                            <ul className="mt-3 space-y-1.5 text-sm text-red-900">
-                              {complianceResult.reasons
-                                .filter((r) => r.status === 'FAIL')
-                                .map((r, i) => (
-                                  <li key={i} className="flex gap-2">
-                                    <span className="shrink-0 text-red-500">✗</span>
-                                    <span>
-                                      <span className="font-medium">{r.rule}</span>
-                                      {' — '}
-                                      {r.detail}
-                                    </span>
-                                  </li>
-                                ))}
-                            </ul>
-                          ) : null}
-                          {writerOutput ? (
-                            <div className="mt-4 whitespace-pre-wrap rounded-lg border border-red-100 bg-white/80 p-3 text-sm leading-relaxed text-zinc-700">
-                              {writerOutput.draft}
-                            </div>
-                          ) : null}
-                          {humanReviewStatus === 'none' ? (
-                            <button
-                              type="button"
-                              onClick={routeToHuman}
-                              className="tr-btn-secondary mt-4 border-red-200 text-red-900 hover:bg-red-50"
-                            >
-                              Route to human reviewer
-                            </button>
-                          ) : null}
-                          {humanReviewStatus === 'pending' ? (
-                            <div className="mt-4 flex flex-wrap gap-2">
-                              <button
-                                type="button"
-                                onClick={handleHumanApprove}
-                                className="tr-btn-primary px-4 py-2 text-sm"
-                              >
-                                Approve override
-                              </button>
-                              <button
-                                type="button"
-                                onClick={rejectHuman}
-                                className="tr-btn-secondary px-4 py-2 text-sm"
-                              >
-                                Reject
-                              </button>
-                            </div>
-                          ) : null}
-                          {humanReviewStatus === 'rejected' ? (
-                            <p className="mt-3 text-sm font-medium text-red-900">
-                              Publication rejected by reviewer.
-                            </p>
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="tr-card p-5">
-                      <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-zinc-950">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                        Safe to publish
-                      </div>
-                      {publishedPost ? (
-                        <div className="whitespace-pre-wrap border-t border-zinc-100 pt-3 text-sm leading-relaxed text-zinc-700">
-                          {publishedPost}
-                        </div>
-                      ) : null}
-                    </div>
-                  )}
+                  <WorkflowStepTimeline />
+                  <PublicationGate onApprove={handleHumanApprove} />
 
                   <button
                     type="button"
