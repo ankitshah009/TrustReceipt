@@ -1,5 +1,5 @@
 {
-  "name": "trust-receipt-temp",
+  "name": "trust-receipt",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,9 +9,13 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "framer-motion": "^11.15.0",
+    "lucide-react": "^0.469.0",
     "next": "16.2.9",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "sonner": "^1.7.1",
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
