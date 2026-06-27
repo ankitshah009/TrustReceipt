@@ -1,8 +1,26 @@
 /**
  * Cryptographic Trust Receipt
  * Real browser Web Crypto (ECDSA P-256) signatures + verification
- * Fully client-side, zero secrets, perfect for hackathon demos
+ * Fully client-side, zero secrets
  */
+
+/** Serializable observer record embedded in signed receipts (maps from lib/observer). */
+export interface ReceiptObserverRecord {
+  id: string;
+  step: string;
+  verdict: 'allow' | 'warn' | 'block';
+  summary: string;
+  timestamp: string;
+  blocked?: boolean;
+  interventionApplied?: boolean;
+}
+
+/** Aggregated observer outcome included in signed receipts when the observer ran. */
+export interface ObserverSummary {
+  publicationBlocked: boolean;
+  interventionCount: number;
+  records: ReceiptObserverRecord[];
+}
 
 export interface SignedTrustReceipt {
   id: string;
@@ -22,6 +40,38 @@ export interface SignedTrustReceipt {
   publicKeyJwk: JsonWebKey; // for verification
   provenanceRoot: string;
   merkleRoot?: string;     // explicit for demo theater (tamper visibly breaks this)
+  observerSummary?: ObserverSummary;
+}
+
+type SignaturePayloadInput = {
+  id: string;
+  timestamp: string;
+  brief: string;
+  finalOutput: string;
+  trustScore: number;
+  verifications: Array<{ name: string; status: 'passed' | 'failed'; value?: string }>;
+  executionTrace: Array<{ step: number; agent: string; summary: string }>;
+  provenanceRoot: string;
+  observerSummary?: ObserverSummary;
+};
+
+function buildSignaturePayload(input: SignaturePayloadInput): string {
+  const base = {
+    id: input.id,
+    timestamp: input.timestamp,
+    brief: input.brief,
+    finalOutput: input.finalOutput.slice(0, 200),
+    trustScore: input.trustScore,
+    verifications: input.verifications,
+    traceSummary: input.executionTrace.map(t => `${t.step}:${t.agent}`).join('|'),
+    root: input.provenanceRoot,
+  };
+
+  if (input.observerSummary) {
+    return JSON.stringify({ ...base, observerSummary: input.observerSummary });
+  }
+
+  return JSON.stringify(base);
 }
 
 export async function generateSignedReceipt(params: {
@@ -33,6 +83,7 @@ export async function generateSignedReceipt(params: {
   executionTrace: Array<{ step: number; agent: string; summary: string }>;
   hashChain: string[];
   provenanceRoot: string;
+  observerSummary?: ObserverSummary;
 }): Promise<SignedTrustReceipt> {
   const id = 'TR-' + Math.random().toString(16).slice(2, 10).toUpperCase();
   const timestamp = new Date().toLocaleString('en-US', {
@@ -40,15 +91,16 @@ export async function generateSignedReceipt(params: {
     hour: 'numeric', minute: '2-digit', hour12: true
   }).replace(',', ' •');
 
-  const payload = JSON.stringify({
+  const payload = buildSignaturePayload({
     id,
     timestamp,
     brief: params.brief,
-    finalOutput: params.finalOutput.slice(0, 200),
+    finalOutput: params.finalOutput,
     trustScore: params.trustScore,
     verifications: params.verifications,
-    traceSummary: params.executionTrace.map(t => `${t.step}:${t.agent}`).join('|'),
-    root: params.provenanceRoot,
+    executionTrace: params.executionTrace,
+    provenanceRoot: params.provenanceRoot,
+    observerSummary: params.observerSummary,
   });
 
   // Generate a fresh demo keypair every time (or cache one)
@@ -84,20 +136,22 @@ export async function generateSignedReceipt(params: {
     publicKeyJwk,
     provenanceRoot: params.provenanceRoot || merkleRoot,
     merkleRoot,
-  } as any; // merkleRoot added for demo
+    ...(params.observerSummary ? { observerSummary: params.observerSummary } : {}),
+  };
 }
 
 export async function verifySignedReceipt(receipt: SignedTrustReceipt): Promise<{ valid: boolean; message: string }> {
   try {
-    const payload = JSON.stringify({
+    const payload = buildSignaturePayload({
       id: receipt.id,
       timestamp: receipt.timestamp,
       brief: receipt.brief,
-      finalOutput: receipt.finalOutput.slice(0, 200),
+      finalOutput: receipt.finalOutput,
       trustScore: receipt.trustScore,
       verifications: receipt.verifications,
-      traceSummary: receipt.executionTrace.map(t => `${t.step}:${t.agent}`).join('|'),
-      root: receipt.provenanceRoot,
+      executionTrace: receipt.executionTrace,
+      provenanceRoot: receipt.provenanceRoot,
+      observerSummary: receipt.observerSummary,
     });
 
     const enc = new TextEncoder();
