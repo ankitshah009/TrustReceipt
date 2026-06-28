@@ -587,6 +587,27 @@ body {
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+.tr-pipeline-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+}
+
+.tr-pipeline-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tr-pipeline-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 9999px;
+}
+
+.tr-pipeline-scroll > * {
+  scroll-snap-align: start;
 }
 
 .landing-hero {

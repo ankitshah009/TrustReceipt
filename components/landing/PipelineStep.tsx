@@ -66,10 +66,10 @@ function PipelineStepComponent({
           : 'border-slate-200 bg-slate-50/80 text-slate-400';
 
   return (
-    <div className="flex flex-1 min-w-0 items-start">
-      <div className="flex flex-col items-center min-w-[3.25rem] shrink-0">
+    <div className="flex flex-1 min-w-[2.75rem] sm:min-w-0 items-start">
+      <div className="flex flex-col items-center min-w-[2.75rem] shrink-0 sm:min-w-[3.25rem]">
         <div
-          className={`relative z-10 flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-300 ${nodeClass}`}
+          className={`relative z-10 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border transition-all duration-300 ${nodeClass}`}
         >
           {status === 'active' ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -83,7 +83,7 @@ function PipelineStepComponent({
             <Icon className="h-3.5 w-3.5" />
           )}
         </div>
-        <p className="mt-2 text-[10px] font-medium text-slate-700 truncate max-w-[4.5rem] text-center leading-tight">
+        <p className="mt-1.5 sm:mt-2 text-[9px] sm:text-[10px] font-medium text-slate-700 truncate max-w-[3.5rem] sm:max-w-[4.5rem] text-center leading-tight">
           {step.label}
         </p>
         <p className="mt-0.5 text-[9px] text-slate-400 leading-tight hidden sm:block text-center max-w-[4.5rem] truncate">

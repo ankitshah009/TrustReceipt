@@ -59,7 +59,9 @@ function PublicationGateComponent({ observer: observerProp, onApprove }: Publica
     <div className="grid gap-3 sm:grid-cols-2">
       <article
         className={`tr-card overflow-hidden transition-opacity ${
-          showOffPolicy ? 'ring-2 ring-amber-400/40 opacity-100' : 'opacity-40 pointer-events-none'
+          showOffPolicy
+            ? 'ring-2 ring-amber-400/40 opacity-100'
+            : 'hidden opacity-40 pointer-events-none sm:block'
         }`}
         aria-hidden={!showOffPolicy}
       >
@@ -137,7 +139,9 @@ function PublicationGateComponent({ observer: observerProp, onApprove }: Publica
 
       <article
         className={`tr-card overflow-hidden transition-opacity ${
-          showOnPolicy ? 'ring-2 ring-emerald-400/35 opacity-100' : 'opacity-40 pointer-events-none'
+          showOnPolicy
+            ? 'ring-2 ring-emerald-400/35 opacity-100'
+            : 'hidden opacity-40 pointer-events-none sm:block'
         }`}
         aria-hidden={!showOnPolicy}
       >

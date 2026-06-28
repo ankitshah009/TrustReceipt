@@ -35,14 +35,14 @@ export function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="border-b border-zinc-200/80 bg-white py-20 sm:py-28"
+      className="border-b border-zinc-200/80 bg-white py-14 sm:py-28"
     >
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <header className="max-w-xl">
           <p className="text-sm font-medium tracking-[-0.01em] text-zinc-500">
             How it works
           </p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-zinc-950 sm:text-4xl">
+          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.02em] text-zinc-950 sm:text-4xl">
             From brief to verifiable proof
           </h2>
           <p className="mt-4 max-w-lg text-base leading-relaxed text-zinc-600">
@@ -70,7 +70,7 @@ function HowItWorksStepRow({ step }: { step: HowItWorksStep }) {
       >
         {step.number}
       </span>
-      <h3 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-zinc-950">
+      <h3 className="mt-2 text-lg font-semibold tracking-[-0.02em] text-zinc-950 sm:text-xl">
         {step.title}
       </h3>
       <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-zinc-600">

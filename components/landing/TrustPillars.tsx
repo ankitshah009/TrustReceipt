@@ -33,13 +33,13 @@ const TRUST_PILLARS: TrustPillar[] = [
 
 export function TrustPillars() {
   return (
-    <section id="security" className="border-b border-zinc-200/80 bg-white py-16 sm:py-20">
-      <div className="mx-auto max-w-6xl px-6">
+    <section id="security" className="border-b border-zinc-200/80 bg-white py-12 sm:py-20">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <header className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-medium tracking-[-0.01em] text-zinc-500">
             Verification
           </p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-zinc-950 sm:text-4xl">
+          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.02em] text-zinc-950 sm:text-4xl">
             Five checks, one coherent verdict
           </h2>
           <p className="mt-4 text-base leading-relaxed text-zinc-600">

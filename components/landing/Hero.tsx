@@ -9,9 +9,9 @@ const PREVIEW_CHECKS = [
 export function Hero() {
   return (
     <section id="product" className="border-b border-zinc-200/80 bg-[#fafafa]">
-      <div className="mx-auto max-w-6xl px-6 pb-24 pt-20 sm:pb-32 sm:pt-24">
+      <div className="mx-auto max-w-6xl px-4 pb-16 pt-14 sm:px-6 sm:pb-32 sm:pt-24">
         <div className="mx-auto max-w-2xl text-center">
-          <h1 className="text-4xl font-semibold tracking-[-0.02em] text-zinc-950 sm:text-[2.75rem] sm:leading-[1.12]">
+          <h1 className="text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-zinc-950 sm:text-[2.75rem] sm:leading-[1.12]">
             The proof behind every AI decision.
           </h1>
 
@@ -36,7 +36,7 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="mx-auto mt-20 max-w-2xl sm:mt-24">
+        <div className="mx-auto mt-14 max-w-2xl sm:mt-24">
           <div
             className="overflow-hidden rounded-xl border border-zinc-200/90 bg-white shadow-sm shadow-zinc-900/[0.04]"
             aria-hidden
@@ -54,8 +54,8 @@ export function Hero() {
             </div>
 
             <div className="p-5 sm:p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
+              <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-start sm:gap-4">
+                <div className="min-w-0">
                   <p className="text-sm font-medium tracking-[-0.01em] text-zinc-950">
                     Workflow receipt
                   </p>
@@ -63,7 +63,7 @@ export function Hero() {
                     ECDSA P-256 · offline verification
                   </p>
                 </div>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-800">
+                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-800">
                   <span className="h-1 w-1 rounded-full bg-emerald-500" />
                   Verified
                 </span>
@@ -73,10 +73,10 @@ export function Hero() {
                 {PREVIEW_CHECKS.map((row) => (
                   <li
                     key={row.label}
-                    className="flex items-center justify-between gap-4 py-2.5 text-[13px]"
+                    className="flex flex-col gap-0.5 py-2.5 text-[13px] sm:flex-row sm:items-center sm:justify-between sm:gap-4"
                   >
                     <span className="text-zinc-500">{row.label}</span>
-                    <span className="font-mono text-xs text-zinc-700">
+                    <span className="font-mono text-xs text-zinc-700 sm:text-right">
                       {row.value}
                     </span>
                   </li>

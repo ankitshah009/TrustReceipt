@@ -1,7 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#fafafa",
+};
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +39,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased subpixel-antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white text-slate-900 antialiased [font-feature-settings:'rlig'_1,'calt'_1,'ss01'_1]">
+      <body className="min-h-full flex flex-col overflow-x-hidden bg-white text-slate-900 antialiased [font-feature-settings:'rlig'_1,'calt'_1,'ss01'_1]">
         {children}
         <Toaster position="top-center" richColors closeButton />
       </body>

@@ -165,7 +165,7 @@ function TrustReceiptCardComponent() {
             Trust Receipt
           </h3>
         </div>
-        <div className="px-5 pb-8 pt-2 flex flex-col items-center justify-center text-center min-h-[340px]">
+        <div className="px-4 pb-8 pt-2 flex flex-col items-center justify-center text-center min-h-[280px] sm:min-h-[340px] sm:px-5">
           <div className="w-11 h-11 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mb-4">
             <Shield className="w-5 h-5 text-slate-500" strokeWidth={1.5} />
           </div>
@@ -182,22 +182,22 @@ function TrustReceiptCardComponent() {
 
   return (
     <div className="tr-receipt-card rounded-2xl overflow-hidden">
-      <div className="tr-card-header px-5 py-4 flex items-start justify-between gap-3">
-        <div>
+      <div className="tr-card-header flex flex-col gap-2 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-3 sm:px-5">
+        <div className="min-w-0">
           <h3 className="text-[15px] font-semibold tracking-tight text-white flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-slate-300" strokeWidth={1.75} />
+            <ShieldCheck className="w-4 h-4 shrink-0 text-slate-300" strokeWidth={1.75} />
             Trust Receipt
           </h3>
           <p className="text-[11px] text-slate-500 mt-1 font-mono tracking-tight">
             ECDSA P-256 · client-side verify
           </p>
         </div>
-        <span className="font-mono text-[10px] text-slate-500 shrink-0 pt-0.5 tabular-nums">
+        <span className="font-mono text-[10px] text-slate-500 shrink-0 tabular-nums break-all sm:pt-0.5 sm:text-right">
           {signedReceipt?.id || receipt?.receiptId}
         </span>
       </div>
 
-      <div className="px-5 pb-5">
+      <div className="px-4 pb-5 sm:px-5">
         <div className="mb-5">
           {safeToPublish && !observer.publicationBlocked ? (
             <div className="inline-flex flex-col gap-1">
@@ -230,11 +230,11 @@ function TrustReceiptCardComponent() {
           {checklist.map((row) => (
             <div
               key={row.label}
-              className="flex justify-between items-center py-2.5 px-3 gap-3 rounded-lg hover:bg-white/[0.02] transition-colors"
+              className="flex flex-col gap-1 py-2.5 px-3 rounded-lg hover:bg-white/[0.02] transition-colors sm:flex-row sm:justify-between sm:items-center sm:gap-3"
             >
               <span className="text-[12px] text-slate-500 shrink-0">{row.label}</span>
               <span
-                className={`font-mono text-[11px] text-right truncate tabular-nums ${
+                className={`font-mono text-[11px] tabular-nums break-words sm:text-right sm:max-w-[58%] ${
                   row.ok ? 'text-emerald-400/90' : 'text-slate-500'
                 }`}
               >

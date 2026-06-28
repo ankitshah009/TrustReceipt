@@ -144,8 +144,8 @@ export function ProductWorkspace() {
   }, [approveHuman, generateCryptographicReceipt]);
 
   return (
-    <section id="app" className="scroll-mt-14 border-y border-zinc-200/80 bg-white py-20 sm:py-24">
-      <div className="mx-auto max-w-6xl px-6">
+    <section id="app" className="scroll-mt-14 border-y border-zinc-200/80 bg-white py-12 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <header className="mb-10 max-w-xl">
           <p className="tr-section-label">Workflow</p>
           <h2 className="tr-headline mt-2 text-2xl sm:text-3xl">
@@ -230,7 +230,11 @@ export function ProductWorkspace() {
                   className="space-y-4"
                 >
                   <div className="tr-card p-5 space-y-4">
-                    <div className="flex w-full items-start overflow-x-auto pb-1">
+                    <div
+                      className="tr-pipeline-scroll -mx-1 flex w-full min-w-0 items-start overflow-x-auto overscroll-x-contain pb-2 sm:mx-0"
+                      role="region"
+                      aria-label="Workflow pipeline progress"
+                    >
                       {PIPELINE_STEPS.map((step, idx) => (
                         <PipelineStep
                           key={step.key}

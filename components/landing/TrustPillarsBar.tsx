@@ -118,9 +118,14 @@ function TrustPillarsBarComponent({
   );
 
   return (
-    <div className="flex divide-x divide-slate-200 overflow-hidden rounded-lg border border-slate-200 bg-slate-50/50">
-      {pillars.map((pillar) => (
-        <div key={pillar.key} className="min-w-0 flex-1 px-2.5 py-2 sm:px-3">
+    <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 sm:flex sm:divide-x sm:divide-slate-200 sm:bg-slate-50/50">
+      {pillars.map((pillar, index) => (
+        <div
+          key={pillar.key}
+          className={`min-w-0 bg-slate-50/50 px-2.5 py-2 sm:flex-1 sm:bg-transparent sm:px-3 ${
+            index === pillars.length - 1 ? "col-span-2 sm:col-span-1" : ""
+          }`}
+        >
           <div className="text-[10px] font-medium uppercase tracking-wide text-slate-500 truncate">
             {pillar.label}
           </div>
