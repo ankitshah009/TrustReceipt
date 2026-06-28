@@ -862,3 +862,89 @@ html {
     );
   background-size: 100% 100%, 28px 28px, 28px 28px;
 }
+
+.tr-gradient-text {
+  background: linear-gradient(135deg, #6366f1, #2563eb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.tr-btn-gradient {
+  background: linear-gradient(135deg, #6366f1 0%, #2563eb 100%);
+}
+
+.safe-banner {
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(52, 211, 153, 0.08));
+  color: #6ee7b7;
+  font-weight: 700;
+  ring: 1px solid rgba(16, 185, 129, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.tr-receipt-tear {
+  position: relative;
+}
+
+.tr-receipt-tear::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(135deg, transparent 33%, rgba(15, 23, 42, 0.4) 33%, rgba(15, 23, 42, 0.4) 66%, transparent 66%);
+  background-size: 12px 6px;
+  opacity: 0.35;
+}
+
+.tr-receipt-action {
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tr-receipt-action:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #f8fafc;
+}
+
+.tr-receipt-tear {
+  position: relative;
+}
+
+.tr-receipt-tear::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 8px;
+  background: linear-gradient(135deg, #0a0e14 50%, transparent 50%) 0 0 / 12px 8px repeat-x;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.safe-banner {
+  text-align: center;
+  font-weight: 700;
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 0.5rem;
+}
+
+.tr-receipt-action {
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.03);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tr-receipt-action:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+}
