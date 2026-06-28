@@ -514,9 +514,16 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
     });
     get().addTrace({ level: 'info', agent: 'SYSTEM', message: '▶ Resuming...' });
 
-    // Continue from current step
-    const idx = WORKFLOW_STEP_INDEX[state.currentStep] ?? 0;
-    const remaining = WORKFLOW_STEPS.slice(idx);
+    // Continue from the first step that hasn't completed successfully yet.
+    // This prevents re-executing the current step on resume (which would duplicate
+    // stepHistory entries and observer records).
+    const completedSteps = new Set(
+      state.stepHistory
+        .filter((h) => h.status === 'success')
+        .map((h) => h.step)
+    );
+    const startIdx = WORKFLOW_STEPS.findIndex((s) => !completedSteps.has(s));
+    const remaining = startIdx >= 0 ? WORKFLOW_STEPS.slice(startIdx) : [];
 
     for (const step of remaining) {
       if (get().controls.isPaused) break;
@@ -544,8 +551,13 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
     const nextIdx = currentIdx + 1;
     
     if (nextIdx >= WORKFLOW_STEPS.length) {
-      set({ controls: { ...state.controls, isComplete: true }, currentStep: 'COMPLETE' });
+      set({ 
+        controls: { ...state.controls, isComplete: true }, 
+        currentStep: 'COMPLETE',
+        observer: { ...get().observer, status: 'complete' },
+      });
       get()._generateReceipt();
+      get().generateCryptographicReceipt();
       return;
     }
 
@@ -600,20 +612,35 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
     set({ humanReviewStatus: 'approved' });
     get().addTrace({ level: 'success', agent: 'HUMAN', message: 'Human reviewer APPROVED publication' });
     
-    // If we were blocked, now allow finalization
-    if (state.currentStep === 'COMPLIANCE' || state.currentStep === 'PUBLISHER') {
-      // Continue pipeline
-      setTimeout(() => {
-        get().executeStep('PUBLISHER').then(() => get().executeStep('OUTPUT')).then(() => {
-          set({ 
-            controls: { ...get().controls, isComplete: true, isRunning: false },
-            currentStep: 'COMPLETE',
-          });
-          get()._generateReceipt();
-          get().generateCryptographicReceipt();
-        });
-      }, 200);
-    }
+    // Continue only unexecuted steps to avoid duplicate stepHistory/observer entries.
+    // PUBLISHER and OUTPUT may have already run if user stepped through after a block.
+    const hasPublisher = state.stepHistory.some((h) => h.step === 'PUBLISHER' && h.status === 'success');
+    const hasOutput = state.stepHistory.some((h) => h.step === 'OUTPUT' && h.status === 'success');
+
+    setTimeout(async () => {
+      const runPublisher = !hasPublisher;
+      const runOutput = !hasOutput;
+
+      try {
+        if (runPublisher && runOutput) {
+          await get().executeStep('PUBLISHER');
+          await get().executeStep('OUTPUT');
+        } else if (runOutput) {
+          await get().executeStep('OUTPUT');
+        }
+      } catch (e) {
+        get().addTrace({ level: 'danger', agent: 'HUMAN', message: `Post-approval step error: ${(e as Error).message}` });
+      }
+
+      set({ 
+        controls: { ...get().controls, isComplete: true, isRunning: false },
+        currentStep: 'COMPLETE',
+        observer: { ...get().observer, status: 'complete' },
+      });
+      get()._generateReceipt();
+      // generateCryptographicReceipt may no-op if finalOutput/receipt missing; wrap to avoid unhandled
+      try { await get().generateCryptographicReceipt(); } catch {}
+    }, 200);
   },
 
   rejectHuman: () => {

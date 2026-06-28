@@ -125,7 +125,8 @@ function TrustReceiptCardComponent() {
       if (hist?.status === 'failed') status = 'failed';
       else if (hist?.status === 'success') status = 'done';
       else if (currentStep === step.key && isRunning) status = 'active';
-      else if (isComplete) status = 'done';
+      // Do not force 'done' on isComplete alone; derive strictly from stepHistory
+      // so the receipt trace reflects actual execution, not derived completion flag.
       return { key: step.key, label: step.label, status };
     });
   }, [stepHistory, currentStep, isRunning, isComplete]);

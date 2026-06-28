@@ -29,6 +29,11 @@ export function proxy(request: NextRequest) {
   return applySecurityHeaders(NextResponse.next());
 }
 
+// Support both the modern "proxy" convention (to silence deprecation) and the classic
+// "middleware" export name so the security layer (IP blocklist + headers) is guaranteed
+// to be picked up by Next.js request pipeline.
+export { proxy as middleware };
+
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };

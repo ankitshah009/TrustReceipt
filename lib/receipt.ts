@@ -52,6 +52,7 @@ type SignaturePayloadInput = {
   verifications: Array<{ name: string; status: 'passed' | 'failed'; value?: string }>;
   executionTrace: Array<{ step: number; agent: string; summary: string }>;
   provenanceRoot: string;
+  hashChain?: string[];
   observerSummary?: ObserverSummary;
 };
 
@@ -65,6 +66,7 @@ function buildSignaturePayload(input: SignaturePayloadInput): string {
     verifications: input.verifications,
     traceSummary: input.executionTrace.map(t => `${t.step}:${t.agent}`).join('|'),
     root: input.provenanceRoot,
+    hashChain: input.hashChain || [],
   };
 
   if (input.observerSummary) {
@@ -100,6 +102,7 @@ export async function generateSignedReceipt(params: {
     verifications: params.verifications,
     executionTrace: params.executionTrace,
     provenanceRoot: params.provenanceRoot,
+    hashChain: params.hashChain,
     observerSummary: params.observerSummary,
   });
 
@@ -151,6 +154,7 @@ export async function verifySignedReceipt(receipt: SignedTrustReceipt): Promise<
       verifications: receipt.verifications,
       executionTrace: receipt.executionTrace,
       provenanceRoot: receipt.provenanceRoot,
+      hashChain: receipt.hashChain,
       observerSummary: receipt.observerSummary,
     });
 

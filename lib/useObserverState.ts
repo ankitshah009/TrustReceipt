@@ -19,27 +19,25 @@ export function useObserverState(): ObserverState {
   const humanReviewStatus = useTrustDemo((s) => s.humanReviewStatus);
   const isRunning = useTrustDemo((s) => s.controls.isRunning);
   const isComplete = useTrustDemo((s) => s.controls.isComplete);
-  const storeObserver = useTrustDemo((s) => (s as StoreWithObserver).observer);
 
   const hasStarted = isRunning || isComplete || currentStep !== 'IDLE';
 
-  return useMemo(() => {
-    if (storeObserver) return storeObserver;
-    return deriveObserverState({
-      brief,
-      intent,
-      mode,
-      currentStep,
-      stepHistory,
-      trustRuntime,
-      complianceResult,
-      humanReviewStatus,
-      isRunning,
-      isComplete,
-      hasStarted,
-    });
-  }, [
-    storeObserver,
+  // Always derive from stepHistory + humanReviewStatus etc. The stored observer can
+  // become stale (especially after human approve/reject or partial step() runs).
+  // Timeline already did this; now making the hook consistent for all consumers.
+  return useMemo(() => deriveObserverState({
+    brief,
+    intent,
+    mode,
+    currentStep,
+    stepHistory,
+    trustRuntime,
+    complianceResult,
+    humanReviewStatus,
+    isRunning,
+    isComplete,
+    hasStarted,
+  }), [
     brief,
     intent,
     mode,

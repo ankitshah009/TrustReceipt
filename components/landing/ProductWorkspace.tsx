@@ -32,7 +32,7 @@ import { useObserverState } from '@/lib/useObserverState';
 
 function resolveStepStatus(
   stepKey: string,
-  idx: number,
+  _idx: number,
   ctx: {
     currentStep: WorkflowStep;
     isRunning: boolean;
@@ -47,7 +47,9 @@ function resolveStepStatus(
   if (stepKey === 'COMPLIANCE' && ctx.complianceFailed && ctx.isComplete) return 'failed';
   if (hist?.status === 'success') return 'done';
   if (ctx.currentStep === stepKey && ctx.isRunning) return 'active';
-  if (ctx.isComplete || idx < ctx.liveStepIdx) return 'done';
+  // Derive strictly from stepHistory. Index-based or isComplete-based short-circuits
+  // can show 'done' for steps that never executed (e.g., step-by-step partial runs,
+  // or error paths that set isComplete without all successes).
   return 'pending';
 }
 
