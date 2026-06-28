@@ -24,10 +24,10 @@ const STEP_META: Record<
   { label: string; icon: LucideIcon }
 > = {
   USER: { label: 'User', icon: User },
-  PLANNER: { label: 'Planner', icon: Bot },
-  WRITER: { label: 'Writer', icon: Pencil },
-  COMPLIANCE: { label: 'Compliance', icon: Shield },
-  PUBLISHER: { label: 'Publisher', icon: Send },
+  PLANNER: { label: 'Planner Agent', icon: Bot },
+  WRITER: { label: 'Writer Agent', icon: Pencil },
+  COMPLIANCE: { label: 'Compliance Agent', icon: Shield },
+  PUBLISHER: { label: 'Publisher Agent', icon: Send },
   OUTPUT: { label: 'Output', icon: FileText },
 };
 
@@ -103,64 +103,53 @@ const TimelineRow = memo(function TimelineRow({
   const summary = record?.summary ?? (rowStatus === 'pending' ? 'Not started' : 'In progress…');
   const duration = formatDuration(entry?.duration);
 
-  const rowBorder =
-    rowStatus === 'blocked'
-      ? 'border-red-200/90 bg-red-50/30'
-      : rowStatus === 'running'
-        ? 'border-blue-200/80 bg-blue-50/20'
-        : rowStatus === 'done'
-          ? 'border-zinc-200/80 bg-white'
-          : 'border-zinc-100 bg-zinc-50/40 opacity-70';
+  const isDone = rowStatus === 'done';
+  const isRunningStatus = rowStatus === 'running';
+  const isBlocked = rowStatus === 'blocked';
 
-  const nodeClass =
-    rowStatus === 'blocked'
-      ? 'border-red-300 bg-red-100 text-red-700'
-      : rowStatus === 'running'
-        ? 'border-blue-500 bg-white text-blue-600 ring-2 ring-blue-500/15'
-        : rowStatus === 'done'
-          ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
-          : 'border-zinc-200 bg-zinc-100 text-zinc-400';
+  const cardClass = isBlocked
+    ? 'border-red-200 bg-red-50/30'
+    : isRunningStatus
+      ? 'border-blue-200 bg-blue-50/20'
+      : isDone
+        ? 'border-zinc-200 bg-white'
+        : 'border-zinc-100 bg-zinc-50/40';
 
   return (
-    <li className="relative pl-8">
-      <span
-        className={`absolute left-[11px] top-0 bottom-0 w-px ${
-          rowStatus === 'blocked' ? 'bg-red-200' : rowStatus === 'done' ? 'bg-zinc-200' : 'bg-zinc-100'
-        }`}
-        aria-hidden
-      />
-      <span
-        className={`absolute left-0 top-3 flex h-[22px] w-[22px] items-center justify-center rounded-full border ${nodeClass}`}
-      >
-        <Icon className="h-3 w-3" strokeWidth={1.75} />
-      </span>
-
-      <div className={`mb-3 rounded-lg border transition-colors ${rowBorder}`}>
+    <li>
+      <div className={`mb-2 rounded-xl border p-3 transition-colors ${cardClass}`}>
         <button
           type="button"
           onClick={onToggle}
           disabled={!record}
-          className="flex w-full items-start gap-3 px-3 py-3 text-left disabled:cursor-default sm:px-4"
+          className="flex w-full items-center gap-3 text-left disabled:cursor-default"
         >
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-semibold text-zinc-900">{meta.label}</span>
-              <span className="font-mono text-[10px] tabular-nums text-zinc-400">{duration}</span>
-              {verdict ? (
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ring-1 ring-inset ${VERDICT_CHIP[verdict]}`}
-                >
-                  {verdict}
-                </span>
-              ) : null}
-            </div>
-            <p className="mt-1 text-sm leading-snug text-zinc-600">{summary}</p>
+          {/* Left status like image */}
+          <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${isDone ? 'border-emerald-500 bg-emerald-500 text-white' : isRunningStatus ? 'border-blue-500 bg-white text-blue-600' : isBlocked ? 'border-red-400 bg-red-100 text-red-600' : 'border-zinc-300 bg-white text-zinc-400'}`}>
+            {isDone ? '✓' : isRunningStatus ? <span className="h-2 w-2 animate-pulse rounded-full bg-current" /> : <Icon className="h-3 w-3" strokeWidth={2} />}
           </div>
+
+          {/* Icon and text */}
+          <div className="flex flex-1 items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700">
+              <Icon className="h-4 w-4" strokeWidth={1.75} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-zinc-950">{meta.label}</span>
+                <span className="ml-2 font-mono text-[10px] text-zinc-400">{duration}</span>
+              </div>
+              <p className="text-xs leading-tight text-zinc-600">{summary}</p>
+            </div>
+          </div>
+
           {record ? (
             <ChevronDown
-              className={`mt-0.5 h-4 w-4 shrink-0 text-zinc-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
+              className={`h-4 w-4 shrink-0 text-zinc-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
             />
-          ) : null}
+          ) : (
+            <span className="h-4 w-4" />
+          )}
         </button>
 
         <AnimatePresence initial={false}>
@@ -172,9 +161,9 @@ const TimelineRow = memo(function TimelineRow({
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="border-t border-zinc-100 px-3 pb-3 pt-2 sm:px-4">
-                <p className="tr-section-label mb-2">Dimension checks</p>
-                <div className="tr-card-inset divide-y divide-zinc-100/80 px-3 py-1">
+              <div className="mt-2 border-t border-zinc-100 pt-2">
+                <p className="mb-1 text-[10px] font-medium uppercase tracking-wide text-zinc-500">Dimension checks</p>
+                <div className="space-y-0.5 text-xs">
                   {record.checks.map((dim) => {
                     const label =
                       OBSERVER_DIMENSIONS.find((d) => d.key === dim.dimension)?.label ??
@@ -190,7 +179,7 @@ const TimelineRow = memo(function TimelineRow({
                   })}
                 </div>
                 {record.blocked && record.verdict === 'block' ? (
-                  <p className="mt-2 text-xs leading-relaxed text-red-800/90">{record.summary}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-red-700">{record.summary}</p>
                 ) : null}
               </div>
             </motion.div>
@@ -210,6 +199,9 @@ function WorkflowStepTimelineComponent({ observer: observerProp }: WorkflowStepT
   const stepHistory = useTrustDemo((s) => s.stepHistory);
   const currentStep = useTrustDemo((s) => s.currentStep);
   const isRunning = useTrustDemo((s) => s.controls.isRunning);
+  const signedReceipt = useTrustDemo((s) => s.signedReceipt);
+  const receipt = useTrustDemo((s) => s.receipt);
+  const brief = useTrustDemo((s) => s.brief);
   const observer = observerProp ?? derivedObserver;
 
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
@@ -226,18 +218,37 @@ function WorkflowStepTimelineComponent({ observer: observerProp }: WorkflowStepT
     setExpandedStep((prev) => (prev === step ? null : step));
   }, []);
 
+  // Derive run info to match image
+  const runTitle = brief ? `LinkedIn Post: ${brief.slice(0, 30)}...` : 'LinkedIn Post: Product Launch';
+  const runDate = signedReceipt?.timestamp || receipt?.createdAt || new Date().toLocaleString();
+  const runId = signedReceipt?.id || receipt?.receiptId || 'TR-' + Math.random().toString(36).slice(2, 10).toUpperCase();
+
   return (
     <div className="tr-card p-4 sm:p-5">
-      <div className="mb-4 flex items-end justify-between gap-3">
-        <div>
-          <p className="tr-section-label">Execution timeline</p>
-          <h3 className="text-sm font-semibold tracking-tight text-zinc-950">
-            Pipeline steps with observer verdicts
-          </h3>
+      {/* Header matching Image #1 */}
+      <div className="mb-4">
+        <div className="text-xs font-semibold tracking-widest text-purple-600">WORKFLOW RUN</div>
+        <div className="mt-2 p-3 bg-white border border-zinc-200 rounded-xl text-sm">
+          <div className="font-medium">{runTitle}</div>
+          <div className="mt-0.5 flex items-center justify-between text-xs text-zinc-500">
+            <span>{runDate}</span>
+            <span className="font-mono flex items-center gap-1">
+              ID: {runId} 
+              <button 
+                onClick={() => { navigator.clipboard.writeText(runId); }} 
+                className="text-zinc-400 hover:text-zinc-600"
+                title="Copy ID"
+              >
+                📋
+              </button>
+            </span>
+          </div>
         </div>
-        <span className="font-mono text-[10px] tabular-nums text-zinc-400">
-          {observer.records.length}/{WORKFLOW_STEPS.length}
-        </span>
+      </div>
+
+      <div className="mb-3 flex items-center justify-between text-xs">
+        <p className="font-semibold tracking-tight text-zinc-950">Pipeline steps</p>
+        <span className="font-mono text-zinc-400">{observer.records.length}/{WORKFLOW_STEPS.length}</span>
       </div>
 
       <ol className="relative space-y-0">
@@ -259,6 +270,13 @@ function WorkflowStepTimelineComponent({ observer: observerProp }: WorkflowStepT
           );
         })}
       </ol>
+
+      <button 
+        onClick={() => { /* could link to full trace */ }} 
+        className="mt-3 w-full py-2 text-xs border border-zinc-200 rounded-lg text-zinc-600 hover:bg-zinc-50"
+      >
+        View full trace
+      </button>
     </div>
   );
 }

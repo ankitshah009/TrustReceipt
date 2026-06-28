@@ -7,12 +7,12 @@ import type { ParallelFlowStep } from './ParallelAgentFlow';
  * Hero previews, parallel flow, step timeline, and receipt trace derive from here.
  */
 export const PIPELINE_STEPS: PipelineStepConfig[] = [
-  { key: 'USER', label: 'User', icon: User, description: 'Intent captured' },
-  { key: 'PLANNER', label: 'Planner', icon: Bot, description: 'Facts & plan' },
-  { key: 'WRITER', label: 'Writer', icon: Pencil, description: 'Draft content' },
-  { key: 'COMPLIANCE', label: 'Compliance', icon: Shield, description: 'Policy check' },
-  { key: 'PUBLISHER', label: 'Publisher', icon: Send, description: 'Format output' },
-  { key: 'OUTPUT', label: 'Output', icon: FileText, description: 'Final post' },
+  { key: 'USER', label: 'User', icon: User, description: 'Provided brief & intent' },
+  { key: 'PLANNER', label: 'Planner Agent', icon: Bot, description: 'Extracted facts & plan' },
+  { key: 'WRITER', label: 'Writer Agent', icon: Pencil, description: 'Generated content' },
+  { key: 'COMPLIANCE', label: 'Compliance Agent', icon: Shield, description: 'Checked policy & claims' },
+  { key: 'PUBLISHER', label: 'Publisher Agent', icon: Send, description: 'Prepared to publish' },
+  { key: 'OUTPUT', label: 'Output', icon: FileText, description: 'LinkedIn post (draft)' },
 ];
 
 export const STEP_ORDER = PIPELINE_STEPS.map((s) => s.key);

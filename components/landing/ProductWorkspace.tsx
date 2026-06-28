@@ -241,37 +241,15 @@ export function ProductWorkspace() {
                   className="space-y-4"
                 >
                   <div className="tr-card space-y-4 p-5">
-                    <ParallelAgentFlow
-                      steps={parallelSteps}
-                      observerStatus={observerFlowStatus}
-                      showRuntimeBar
-                    />
+                    {!isComplete && (
+                      <ParallelAgentFlow
+                        steps={parallelSteps}
+                        observerStatus={observerFlowStatus}
+                        showRuntimeBar
+                      />
+                    )}
 
-                    {/* Classic step strip — same PIPELINE_STEPS, compact connector view */}
-                    <details className="group rounded-lg border border-zinc-100 bg-zinc-50/50">
-                      <summary className="cursor-pointer list-none px-3 py-2 text-xs font-medium text-zinc-600 marker:content-none [&::-webkit-details-marker]:hidden">
-                        <span className="group-open:hidden">Show classic step view</span>
-                        <span className="hidden group-open:inline">Hide classic step view</span>
-                      </summary>
-                      <div
-                        className="tr-pipeline-scroll flex w-full items-start overflow-x-auto border-t border-zinc-100 px-2 pb-3 pt-2"
-                        role="region"
-                        aria-label="Classic pipeline step view"
-                      >
-                        {PIPELINE_STEPS.map((step, idx) => (
-                          <PipelineStep
-                            key={step.key}
-                            step={step}
-                            status={stepStatuses[idx]}
-                            showConnector={idx < PIPELINE_STEPS.length - 1}
-                            connectorStatus={resolveConnectorStatus(
-                              stepStatuses[idx],
-                              stepStatuses[idx + 1],
-                            )}
-                          />
-                        ))}
-                      </div>
-                    </details>
+                    {/* Workflow list sidebar aligned to Image #1 - shown on complete as the main workflow view */}
 
                     <div>
                       <p className="tr-section-label mb-2">Trust runtime</p>
@@ -298,6 +276,7 @@ export function ProductWorkspace() {
                   exit={{ opacity: 0 }}
                   className="space-y-4"
                 >
+                  {/* Workflow sidebar list aligned to Image #1 */}
                   <WorkflowStepTimeline />
                   <PublicationGate onApprove={handleHumanApprove} />
 
