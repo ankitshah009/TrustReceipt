@@ -129,8 +129,12 @@ export function ProductWorkspace() {
     try {
       await runDemo();
       await generateCryptographicReceipt();
-    } catch {
-      toast.error('Workflow could not complete — check your API key in .env.local');
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : 'Workflow could not complete — check your API key or try again later.';
+      toast.error(message);
     }
   }, [runDemo, generateCryptographicReceipt]);
 
@@ -154,6 +158,10 @@ export function ProductWorkspace() {
           <p className="mt-3 text-[15px] leading-relaxed text-zinc-600">
             Agents plan, draft, and check policy. Trust Runtime verifies every step and issues a signed receipt.
           </p>
+          <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+            Try the sample briefs below. Live runs use Grok on the server — your API key stays in
+            environment variables, never in the browser. Public demo is rate-limited per IP.
+          </p>
         </header>
 
         <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-14">
@@ -166,6 +174,7 @@ export function ProductWorkspace() {
                   onChange={(e) => setBrief(e.target.value)}
                   disabled={isRunning}
                   rows={4}
+                  maxLength={8000}
                   className="mt-1.5 w-full resize-y rounded-lg border border-zinc-200 bg-white p-3 text-sm text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-600/20 disabled:opacity-60"
                   placeholder="Create a LinkedIn launch post from this product brief. Only use approved claims."
                 />
@@ -178,6 +187,7 @@ export function ProductWorkspace() {
                   value={intent}
                   onChange={(e) => setIntent(e.target.value)}
                   disabled={isRunning}
+                  maxLength={512}
                   className="mt-1 w-full rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-600/15 disabled:opacity-60"
                   placeholder="What outcome should this content achieve?"
                 />

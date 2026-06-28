@@ -6,8 +6,9 @@ import { useCallback, useEffect, useId, useState } from "react";
 
 const NAV_LINKS = [
   { href: "#product", label: "Product" },
+  { href: "#use-cases", label: "Use cases" },
   { href: "#how-it-works", label: "How it works" },
-  { href: "#security", label: "Security" },
+  { href: "#faq", label: "FAQ" },
 ] as const;
 
 export function SiteNav() {
@@ -61,6 +62,12 @@ export function SiteNav() {
             className="hidden items-center justify-center rounded-md bg-blue-600 px-3.5 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:inline-flex"
           >
             Get started
+          </a>
+          <a
+            href="#contact"
+            className="hidden items-center justify-center rounded-md border border-zinc-200 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 lg:inline-flex"
+          >
+            Contact
           </a>
           <button
             type="button"

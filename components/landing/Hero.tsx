@@ -8,16 +8,21 @@ const PREVIEW_CHECKS = [
 
 export function Hero() {
   return (
-    <section id="product" className="border-b border-zinc-200/80 bg-[#fafafa]">
+    <section id="product" className="tr-hero-grid border-b border-zinc-200/80">
       <div className="mx-auto max-w-6xl px-4 pb-16 pt-14 sm:px-6 sm:pb-32 sm:pt-24">
         <div className="mx-auto max-w-2xl text-center">
-          <h1 className="text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-zinc-950 sm:text-[2.75rem] sm:leading-[1.12]">
+          <p className="inline-flex items-center rounded-full border border-zinc-200/90 bg-white/80 px-3 py-1 text-xs font-medium text-zinc-600 shadow-sm">
+            Runtime trust for agent workflows
+          </p>
+
+          <h1 className="mt-6 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-zinc-950 sm:text-[2.75rem] sm:leading-[1.12]">
             The proof behind every AI decision.
           </h1>
 
           <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-zinc-600 sm:text-[17px]">
-            Verify agent workflows from intent to execution, then issue a
-            cryptographically signed receipt anyone can inspect offline.
+            When agents draft, publish, or act on your behalf, Trust Receipt verifies every step
+            and issues a signed receipt your team, customers, and auditors can validate
+            offline — without trusting our servers.
           </p>
 
           <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-5">
@@ -25,13 +30,13 @@ export function Hero() {
               href="#app"
               className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:w-auto"
             >
-              Start a workflow
+              Run the live workflow
             </a>
             <a
               href="#how-it-works"
               className="inline-flex w-full items-center justify-center px-2 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-950 sm:w-auto"
             >
-              How it works
+              See how verification works
             </a>
           </div>
         </div>

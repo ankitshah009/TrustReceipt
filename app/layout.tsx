@@ -21,9 +21,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://trust-receipt.vercel.app"),
   title: "Trust Receipt | The proof behind every AI decision",
   description:
-    "Enterprise runtime trust for AI agents. Verify identity, intent, and policy at every step — then export cryptographically signed receipts your team and auditors can validate independently.",
+    "Runtime trust for AI agent workflows. Verify identity, intent, and policy at every step — then export cryptographically signed receipts your team and auditors can validate independently.",
+  openGraph: {
+    title: "Trust Receipt | The proof behind every AI decision",
+    description:
+      "Signed, offline-verifiable receipts for agent workflows — with a parallel Observer Agent and human review built in.",
+    url: "https://trust-receipt.vercel.app",
+    siteName: "Trust Receipt",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Trust Receipt",
+    description:
+      "The proof behind every AI decision — runtime trust and signed receipts for agent workflows.",
+  },
   icons: {
     icon: "/favicon.ico",
   },

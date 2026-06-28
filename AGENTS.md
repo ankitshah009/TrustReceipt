@@ -57,6 +57,29 @@ When the observer blocks publication, the workflow still completes through OUTPU
 ### Vercel production
 
 - Project: `trust-receipt` under team `ankit-shahs-projects-523d1fc7`
+- URL: https://trust-receipt.vercel.app
 - Deploy: `npx vercel deploy --prod --yes` from repo root (requires Vercel CLI login)
 - Env: `GROK_API_KEY` / `XAI_API_KEY` must be set in Vercel project settings for Production
 - Connect GitHub repo `ankitshah009/trustreceipt` → branch `main` in dashboard for auto-deploy on push
+
+### Production security (public demo)
+
+LLM server actions are protected by:
+
+- Per-IP rate limits and concurrent run caps (`lib/security/rateLimit.ts`, `lib/security/guard.ts`)
+- Input length validation on brief/intent/draft (`lib/security/validateInput.ts`)
+- IP blocklist via `TRUST_RECEIPT_BLOCKED_IPS` (comma-separated)
+- Security headers in `middleware.ts` and CSP/HSTS in `next.config.ts`
+
+Optional env overrides:
+
+```
+TRUST_RECEIPT_RATE_LIMIT_ACTIONS=24      # LLM calls per IP per window (~6 workflows)
+TRUST_RECEIPT_RATE_LIMIT_WINDOW_MS=3600000
+TRUST_RECEIPT_MAX_CONCURRENT=2
+TRUST_RECEIPT_BRIEF_MAX_LENGTH=8000
+TRUST_RECEIPT_INTENT_MAX_LENGTH=512
+TRUST_RECEIPT_DISABLE_RATE_LIMIT=true    # local dev only
+```
+
+For multi-instance production quotas, add Upstash/Vercel KV and replace in-memory limiter.

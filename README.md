@@ -26,6 +26,10 @@ Set `GROK_API_KEY` or `XAI_API_KEY` in `.env.local` for live Grok agent executio
 
 GitHub auto-deploy: connect the repo in the Vercel project settings if not already linked (`ankitshah009/trustreceipt` → `main`).
 
+### Security (public demo)
+
+Per-IP rate limits on LLM server actions, input length caps, IP blocklist (`TRUST_RECEIPT_BLOCKED_IPS`), CSP/HSTS headers. See `AGENTS.md` for env overrides. For multi-region quotas, add Redis/Upstash.
+
 ## Layout
 
 ```
