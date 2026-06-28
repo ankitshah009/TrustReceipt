@@ -26,6 +26,16 @@ Set `GROK_API_KEY` or `XAI_API_KEY` in `.env.local` for live Grok agent executio
 
 GitHub auto-deploy: connect the repo in the Vercel project settings if not already linked (`ankitshah009/trustreceipt` → `main`).
 
+**Recommended (CI):** GitHub Actions deploys production on every push to `main` (see `.github/workflows/vercel-production.yml`). Add a repository secret:
+
+| Secret | Value |
+|--------|--------|
+| `VERCEL_TOKEN` | [Vercel account token](https://vercel.com/account/tokens) with deploy access |
+
+Org/project IDs are already in the workflow env. Manual run: **Actions → Vercel Production Deploy → Run workflow**.
+
+Do **not** rely on `vercel git connect` in CI — use this workflow instead if dashboard Git linking fails.
+
 ### Security (public demo)
 
 Per-IP rate limits on LLM server actions, input length caps, IP blocklist (`TRUST_RECEIPT_BLOCKED_IPS`), CSP/HSTS headers. See `AGENTS.md` for env overrides. For multi-region quotas, add Redis/Upstash.

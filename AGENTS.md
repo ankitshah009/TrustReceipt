@@ -62,6 +62,16 @@ When the observer blocks publication, the workflow still completes through OUTPU
 - Env: `GROK_API_KEY` / `XAI_API_KEY` must be set in Vercel project settings for Production
 - Connect GitHub repo `ankitshah009/trustreceipt` → branch `main` in dashboard for auto-deploy on push
 
+### Automatic deploy on push (GitHub Actions)
+
+Production deploys run via `.github/workflows/vercel-production.yml` on every push to `main` (and manual `workflow_dispatch`).
+
+1. Create a token at https://vercel.com/account/tokens
+2. In GitHub: **Settings → Secrets and variables → Actions → New repository secret**
+3. Name: `VERCEL_TOKEN`, value: your token
+
+The workflow runs `npx vercel deploy --prod --yes` — no `vercel git connect` required.
+
 ### Production security (public demo)
 
 LLM server actions are protected by:
