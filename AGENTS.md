@@ -83,7 +83,7 @@ LLM server actions are protected by:
 - Per-IP rate limits and concurrent run caps (`lib/security/rateLimit.ts`, `lib/security/guard.ts`)
 - Input length validation on brief/intent/draft (`lib/security/validateInput.ts`)
 - IP blocklist via `TRUST_RECEIPT_BLOCKED_IPS` (comma-separated)
-- Security headers in `middleware.ts` and CSP/HSTS in `next.config.ts`
+- Security headers in `proxy.ts` (middleware) and CSP/HSTS in `next.config.ts`
 
 Optional env overrides:
 

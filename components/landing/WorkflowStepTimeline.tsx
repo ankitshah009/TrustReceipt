@@ -14,7 +14,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ObserverState, ObserverStepRecord, ObserverVerdict } from '@/lib/observer/types';
 import { OBSERVER_DIMENSIONS } from '@/lib/observer/constants';
-import { useObserverState } from '@/lib/useObserverState';
+import { deriveObserverState } from '@/lib/observer/deriveObserverState';
 import { useTrustDemo } from '@/lib/store';
 import type { StepHistoryEntry, WorkflowStep } from '@/lib/types';
 import { WORKFLOW_STEPS } from '@/lib/types';
@@ -100,7 +100,7 @@ const TimelineRow = memo(function TimelineRow({
   const Icon = meta.icon;
   const rowStatus = resolveRowStatus(step, entry, record, isActive);
   const verdict = record?.verdict;
-  const summary = record?.summary ?? (rowStatus === 'pending' ? 'Not started' : 'In progress…');
+  const summary = record?.summary ?? (entry?.status === 'success' ? 'Completed — verified by Observer' : (rowStatus === 'pending' ? 'Not started' : 'In progress…'));
   const duration = formatDuration(entry?.duration);
 
   const isDone = rowStatus === 'done';
@@ -195,13 +195,35 @@ interface WorkflowStepTimelineProps {
 }
 
 function WorkflowStepTimelineComponent({ observer: observerProp }: WorkflowStepTimelineProps) {
-  const derivedObserver = useObserverState();
   const stepHistory = useTrustDemo((s) => s.stepHistory);
   const currentStep = useTrustDemo((s) => s.currentStep);
   const isRunning = useTrustDemo((s) => s.controls.isRunning);
+  const isComplete = useTrustDemo((s) => s.controls.isComplete);
   const signedReceipt = useTrustDemo((s) => s.signedReceipt);
   const receipt = useTrustDemo((s) => s.receipt);
   const brief = useTrustDemo((s) => s.brief);
+  const intent = useTrustDemo((s) => s.intent);
+  const mode = useTrustDemo((s) => s.mode);
+  const trustRuntime = useTrustDemo((s) => s.trustRuntime);
+  const complianceResult = useTrustDemo((s) => s.complianceResult);
+  const humanReviewStatus = useTrustDemo((s) => s.humanReviewStatus);
+
+  // Always derive from stepHistory for timeline to guarantee full records + correct "done" summaries after run completes.
+  // (store observer may be stale post-reset or on fast complete transitions)
+  const derivedObserver = useMemo(() => deriveObserverState({
+    brief,
+    intent,
+    mode,
+    currentStep,
+    stepHistory,
+    trustRuntime,
+    complianceResult,
+    humanReviewStatus,
+    isRunning,
+    isComplete,
+    hasStarted: isRunning || isComplete || currentStep !== 'IDLE',
+  }), [brief, intent, mode, currentStep, stepHistory, trustRuntime, complianceResult, humanReviewStatus, isRunning, isComplete]);
+
   const observer = observerProp ?? derivedObserver;
 
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
@@ -248,7 +270,7 @@ function WorkflowStepTimelineComponent({ observer: observerProp }: WorkflowStepT
 
       <div className="mb-3 flex items-center justify-between text-xs">
         <p className="font-semibold tracking-tight text-zinc-950">Pipeline steps</p>
-        <span className="font-mono text-zinc-400">{observer.records.length}/{WORKFLOW_STEPS.length}</span>
+        <span className="font-mono text-zinc-400">{stepHistory.filter((h) => h.status === 'success').length}/{WORKFLOW_STEPS.length}</span>
       </div>
 
       <ol className="relative space-y-0">

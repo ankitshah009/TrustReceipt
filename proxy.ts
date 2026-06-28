@@ -17,7 +17,7 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   return response;
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const ip = getClientIp(request.headers);
 
   if (isIpBlocked(ip, getSecurityConfig().blockedIps)) {

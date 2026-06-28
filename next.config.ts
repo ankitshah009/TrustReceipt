@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const csp = [
   "default-src 'self'",
@@ -14,6 +15,9 @@ const csp = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   async headers() {
     return [
       {
