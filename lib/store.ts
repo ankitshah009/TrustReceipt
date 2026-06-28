@@ -632,10 +632,16 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
         get().addTrace({ level: 'danger', agent: 'HUMAN', message: `Post-approval step error: ${(e as Error).message}` });
       }
 
+      const currObs = get().observer;
       set({ 
         controls: { ...get().controls, isComplete: true, isRunning: false },
         currentStep: 'COMPLETE',
-        observer: { ...get().observer, status: 'complete' },
+        observer: {
+          ...currObs,
+          publicationBlocked: false,
+          blockReason: undefined,
+          status: 'complete',
+        },
       });
       get()._generateReceipt();
       // generateCryptographicReceipt may no-op if finalOutput/receipt missing; wrap to avoid unhandled
@@ -644,11 +650,27 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
   },
 
   rejectHuman: () => {
+    const state = get();
     set({ humanReviewStatus: 'rejected' });
     get().addTrace({ level: 'danger', agent: 'HUMAN', message: 'Human reviewer REJECTED — publication blocked' });
+    
+    const currObs = state.observer;
     set({
       controls: { ...get().controls, isRunning: false, isComplete: true },
+      observer: {
+        ...currObs,
+        publicationBlocked: true,
+        blockReason: 'Publication rejected by reviewer',
+        status: 'intervened',
+      },
     });
+    
+    // Attempt to produce a receipt reflecting the rejection if we have output
+    if (state.finalOutput) {
+      get()._generateReceipt();
+      // best effort
+      get().generateCryptographicReceipt().catch(() => {});
+    }
   },
 
   // --------------------------------------------------------------------------
@@ -771,7 +793,12 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
   // --------------------------------------------------------------------------
   generateCryptographicReceipt: async () => {
     const state = get();
-    if (!state.finalOutput || !state.receipt) return;
+    if (!state.finalOutput) return;
+    if (!state.receipt) {
+      get()._generateReceipt();
+    }
+    const receiptForCrypto = get().receipt;
+    if (!receiptForCrypto) return;
 
     const observerBlocked = state.observer.publicationBlocked;
     const compliancePassed = state.complianceResult?.passed ?? false;
@@ -833,7 +860,7 @@ export const useTrustDemo = create<TrustDemoState & TrustDemoActions>((set, get)
       verifications: verifs,
       executionTrace: trace,
       hashChain: state.trustRuntime.provenance.hashChain,
-      provenanceRoot: state.receipt.provenanceRoot,
+      provenanceRoot: receiptForCrypto.provenanceRoot,
       observerSummary,
     });
 
