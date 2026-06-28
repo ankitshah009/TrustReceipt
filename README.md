@@ -16,6 +16,16 @@ npm run dev
 
 Set `GROK_API_KEY` or `XAI_API_KEY` in `.env.local` for live Grok agent execution. Use **Start a workflow** on the landing page to run the pipeline, inspect the trust runtime, and generate or verify a signed receipt. Run `npm run build` for a production check.
 
+## Production (Vercel)
+
+| | |
+|---|---|
+| **URL** | https://trust-receipt.vercel.app |
+| **Branch** | Deploy from `main` with `npx vercel deploy --prod --yes` |
+| **Env** | Set `GROK_API_KEY` or `XAI_API_KEY` in Vercel → Project → Settings → Environment Variables (Production) |
+
+GitHub auto-deploy: connect the repo in the Vercel project settings if not already linked (`ankitshah009/trustreceipt` → `main`).
+
 ## Layout
 
 ```

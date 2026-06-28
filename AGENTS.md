@@ -48,8 +48,15 @@ When the observer blocks publication, the workflow still completes through OUTPU
 
 ### Workflow verification
 
-1. Open http://localhost:3000
+1. Open http://localhost:3000 (or production: https://trust-receipt.vercel.app)
 2. Click **Start a workflow** or **Run workflow** in the workspace (`#app`)
 3. Wait ~30–90s for Grok agent steps to complete
 4. Confirm Observer panel, step timeline, and Trust Receipt reflect allow or needs-review
 5. **Verify integrity** on the receipt exercises browser Web Crypto (ECDSA P-256)
+
+### Vercel production
+
+- Project: `trust-receipt` under team `ankit-shahs-projects-523d1fc7`
+- Deploy: `npx vercel deploy --prod --yes` from repo root (requires Vercel CLI login)
+- Env: `GROK_API_KEY` / `XAI_API_KEY` must be set in Vercel project settings for Production
+- Connect GitHub repo `ankitshah009/trustreceipt` → branch `main` in dashboard for auto-deploy on push
