@@ -32,6 +32,10 @@ Optional: `GROK_MODEL` (defaults to `grok-4.3`).
 
 Do not commit API keys. Do not put secrets in `NEXT_PUBLIC_*` variables.
 
+### Pipeline UI (canonical steps)
+
+Workflow step labels and order live in `components/landing/pipelineConfig.ts` as `PIPELINE_STEPS`. Hero preview, `ParallelAgentFlow`, classic `PipelineStep` strip, and receipt execution trace all derive from this array via helpers (`toParallelFlowSteps`, `previewParallelFlowSteps`). Do not duplicate step definitions elsewhere.
+
 ### Observer layer
 
 Independent audit agent under `lib/observer/`. It records per-step observer entries and can block publication; extend types and hooks there without rewriting the UI shell.

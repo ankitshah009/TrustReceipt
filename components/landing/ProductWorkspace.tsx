@@ -1,16 +1,7 @@
 'use client';
 
 import React, { useCallback, useMemo } from 'react';
-import {
-  Bot,
-  Eye,
-  FileText,
-  Loader2,
-  Pencil,
-  Send,
-  Shield,
-  User,
-} from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useTrustDemo } from '@/lib/store';
@@ -21,28 +12,23 @@ import {
   OFF_POLICY_INTENT,
 } from '@/lib/sampleData';
 import type { WorkflowStep } from '@/lib/types';
-import {
-  PipelineStep,
-  resolveConnectorStatus,
-  type PipelineStepConfig,
-  type PipelineStepStatus,
-} from './PipelineStep';
+import type { PipelineStepStatus } from './PipelineStep';
 import { ObserverAgentPanel } from './ObserverAgentPanel';
 import { PublicationGate } from './PublicationGate';
 import { TrustPillarsBar } from './TrustPillarsBar';
 import { TrustReceiptCard } from './TrustReceiptCard';
 import { WorkflowStepTimeline } from './WorkflowStepTimeline';
-
-export const PIPELINE_STEPS: PipelineStepConfig[] = [
-  { key: 'USER', label: 'User', icon: User, description: 'Intent captured' },
-  { key: 'PLANNER', label: 'Planner', icon: Bot, description: 'Facts & plan' },
-  { key: 'WRITER', label: 'Writer', icon: Pencil, description: 'Draft content' },
-  { key: 'COMPLIANCE', label: 'Compliance', icon: Shield, description: 'Policy check' },
-  { key: 'PUBLISHER', label: 'Publisher', icon: Send, description: 'Format output' },
-  { key: 'OUTPUT', label: 'Output', icon: FileText, description: 'Final post' },
-];
-
-const STEP_ORDER = PIPELINE_STEPS.map((s) => s.key);
+import { ParallelAgentFlow } from './ParallelAgentFlow';
+import {
+  PIPELINE_STEPS,
+  STEP_ORDER,
+  toParallelFlowSteps,
+} from './pipelineConfig';
+import {
+  PipelineStep,
+  resolveConnectorStatus,
+} from './PipelineStep';
+import { useObserverState } from '@/lib/useObserverState';
 
 function resolveStepStatus(
   stepKey: string,
@@ -112,6 +98,21 @@ export function ProductWorkspace() {
       ),
     [currentStep, isRunning, isComplete, liveStepIdx, complianceFailed, stepHistory],
   );
+
+  const observer = useObserverState();
+
+  const parallelSteps = useMemo(
+    () => toParallelFlowSteps(PIPELINE_STEPS, stepStatuses),
+    [stepStatuses],
+  );
+
+  const observerFlowStatus: PipelineStepStatus = useMemo(() => {
+    if (!hasStarted) return 'pending';
+    if (observer.publicationBlocked && isComplete) return 'failed';
+    if (isRunning) return 'active';
+    if (isComplete) return 'done';
+    return 'pending';
+  }, [hasStarted, isRunning, isComplete, observer.publicationBlocked]);
 
   const loadCompliantExample = useCallback(() => {
     setMode('happy');
@@ -216,7 +217,7 @@ export function ProductWorkspace() {
                 type="button"
                 onClick={handleRun}
                 disabled={isRunning || !brief.trim()}
-                className="tr-btn-primary w-full py-3 disabled:opacity-60"
+                className="tr-btn-gradient w-full rounded-lg py-3 text-sm font-medium text-white disabled:opacity-60"
               >
                 {isRunning ? (
                   <>
@@ -239,34 +240,38 @@ export function ProductWorkspace() {
                   exit={{ opacity: 0, y: -4 }}
                   className="space-y-4"
                 >
-                  <div className="tr-card p-5 space-y-4">
-                    <div
-                      className="tr-pipeline-scroll -mx-1 flex w-full min-w-0 items-start overflow-x-auto overscroll-x-contain pb-2 sm:mx-0"
-                      role="region"
-                      aria-label="Workflow pipeline progress"
-                    >
-                      {PIPELINE_STEPS.map((step, idx) => (
-                        <PipelineStep
-                          key={step.key}
-                          step={step}
-                          status={stepStatuses[idx]}
-                          showConnector={idx < PIPELINE_STEPS.length - 1}
-                          connectorStatus={resolveConnectorStatus(
-                            stepStatuses[idx],
-                            stepStatuses[idx + 1],
-                          )}
-                        />
-                      ))}
-                    </div>
+                  <div className="tr-card space-y-4 p-5">
+                    <ParallelAgentFlow
+                      steps={parallelSteps}
+                      observerStatus={observerFlowStatus}
+                      showRuntimeBar
+                    />
 
-                    <div className="flex items-center gap-2 rounded-lg border border-dashed border-zinc-200 bg-zinc-50/60 px-3 py-2">
-                      <Eye className="h-3.5 w-3.5 shrink-0 text-blue-600" strokeWidth={1.75} />
-                      <p className="text-[11px] leading-snug text-zinc-600">
-                        <span className="font-medium text-zinc-800">Observer</span>
-                        {' — '}
-                        parallel runtime verification on every step (see panel above)
-                      </p>
-                    </div>
+                    {/* Classic step strip — same PIPELINE_STEPS, compact connector view */}
+                    <details className="group rounded-lg border border-zinc-100 bg-zinc-50/50">
+                      <summary className="cursor-pointer list-none px-3 py-2 text-xs font-medium text-zinc-600 marker:content-none [&::-webkit-details-marker]:hidden">
+                        <span className="group-open:hidden">Show classic step view</span>
+                        <span className="hidden group-open:inline">Hide classic step view</span>
+                      </summary>
+                      <div
+                        className="tr-pipeline-scroll flex w-full items-start overflow-x-auto border-t border-zinc-100 px-2 pb-3 pt-2"
+                        role="region"
+                        aria-label="Classic pipeline step view"
+                      >
+                        {PIPELINE_STEPS.map((step, idx) => (
+                          <PipelineStep
+                            key={step.key}
+                            step={step}
+                            status={stepStatuses[idx]}
+                            showConnector={idx < PIPELINE_STEPS.length - 1}
+                            connectorStatus={resolveConnectorStatus(
+                              stepStatuses[idx],
+                              stepStatuses[idx + 1],
+                            )}
+                          />
+                        ))}
+                      </div>
+                    </details>
 
                     <div>
                       <p className="tr-section-label mb-2">Trust runtime</p>
@@ -318,3 +323,6 @@ export function ProductWorkspace() {
 }
 
 export default ProductWorkspace;
+
+/** Re-export canonical pipeline for consumers that imported from this module. */
+export { PIPELINE_STEPS, STEP_ORDER } from './pipelineConfig';

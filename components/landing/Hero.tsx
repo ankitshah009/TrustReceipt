@@ -1,97 +1,83 @@
-const PREVIEW_CHECKS = [
-  { label: "Identity", value: "4 agents verified" },
-  { label: "Authority", value: "Within scope" },
-  { label: "Intent", value: "94% aligned" },
-  { label: "Policy", value: "Passed" },
-  { label: "Provenance", value: "100% grounded" },
+import { ArrowRight, Lock, Shield, Users } from 'lucide-react';
+import { HeroWorkflowPreview } from '@/components/landing/HeroWorkflowPreview';
+
+const FEATURES = [
+  {
+    icon: Shield,
+    title: 'Verifiable offline',
+    description: 'Validate signatures without our servers',
+  },
+  {
+    icon: Lock,
+    title: 'Tamper-evident',
+    description: 'ECDSA P-256 signed receipts',
+  },
+  {
+    icon: Users,
+    title: 'Built for teams',
+    description: 'Share proof with auditors & customers',
+  },
 ] as const;
 
 export function Hero() {
   return (
     <section id="product" className="tr-hero-grid border-b border-zinc-200/80">
-      <div className="mx-auto max-w-6xl px-4 pb-16 pt-14 sm:px-6 sm:pb-32 sm:pt-24">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="inline-flex items-center rounded-full border border-zinc-200/90 bg-white/80 px-3 py-1 text-xs font-medium text-zinc-600 shadow-sm">
-            Runtime trust for agent workflows
-          </p>
+      <div className="mx-auto max-w-6xl px-4 pb-16 pt-14 sm:px-6 sm:pb-24 sm:pt-20 lg:pb-28 lg:pt-24">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-10 xl:gap-14">
+          {/* Left column */}
+          <div className="mx-auto max-w-xl text-center lg:mx-0 lg:max-w-none lg:text-left">
+            <p className="inline-flex items-center rounded-full bg-sky-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-sky-800">
+              Runtime trust for agent workflows
+            </p>
 
-          <h1 className="mt-6 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-zinc-950 sm:text-[2.75rem] sm:leading-[1.12]">
-            The proof behind every AI decision.
-          </h1>
+            <h1 className="mt-6 text-[1.75rem] font-semibold leading-[1.12] tracking-[-0.03em] text-zinc-950 sm:text-[2.5rem] lg:text-[2.75rem]">
+              The proof behind every{' '}
+              <span className="tr-gradient-text">AI decision.</span>
+            </h1>
 
-          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-zinc-600 sm:text-[17px]">
-            When agents draft, publish, or act on your behalf, Trust Receipt verifies every step
-            and issues a signed receipt your team, customers, and auditors can validate
-            offline — without trusting our servers.
-          </p>
+            <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-zinc-600 sm:text-[17px] lg:mx-0">
+              When agents draft, publish, or act on your behalf, Trust Receipt verifies every step
+              and issues a signed receipt your team, customers, and auditors can validate offline —
+              without trusting our servers.
+            </p>
 
-          <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-5">
-            <a
-              href="#app"
-              className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:w-auto"
-            >
-              Run the live workflow
-            </a>
-            <a
-              href="#how-it-works"
-              className="inline-flex w-full items-center justify-center px-2 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-950 sm:w-auto"
-            >
-              See how verification works
-            </a>
+            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
+              <a
+                href="#app"
+                className="tr-btn-gradient inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-[transform,box-shadow] hover:shadow-md hover:brightness-105 sm:w-auto"
+              >
+                Run the live workflow
+                <ArrowRight className="h-4 w-4" strokeWidth={2} />
+              </a>
+              <a
+                href="#how-it-works"
+                className="inline-flex w-full items-center justify-center rounded-lg border border-zinc-200/90 bg-white/60 px-5 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:border-zinc-300 hover:bg-white hover:text-zinc-950 sm:w-auto"
+              >
+                See how verification works
+              </a>
+            </div>
+
+            <div className="mt-10 grid gap-6 sm:grid-cols-3 sm:gap-4 lg:mt-12">
+              {FEATURES.map((feature) => {
+                const Icon = feature.icon;
+                return (
+                  <div key={feature.title} className="flex flex-col items-center lg:items-start">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100">
+                      <Icon className="h-4 w-4" strokeWidth={1.75} />
+                    </div>
+                    <p className="mt-2.5 text-sm font-semibold text-zinc-900">{feature.title}</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-zinc-500">
+                      {feature.description}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
 
-        <div className="mx-auto mt-14 max-w-2xl sm:mt-24">
-          <div
-            className="overflow-hidden rounded-xl border border-zinc-200/90 bg-white shadow-sm shadow-zinc-900/[0.04]"
-            aria-hidden
-          >
-            <div className="flex items-center justify-between border-b border-zinc-100 bg-zinc-50/80 px-4 py-2.5">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-zinc-300" />
-                <span className="h-2 w-2 rounded-full bg-zinc-300" />
-                <span className="h-2 w-2 rounded-full bg-zinc-300" />
-                <span className="ml-1 text-xs text-zinc-400">Trust Receipt</span>
-              </div>
-              <span className="font-mono text-[11px] text-zinc-400">
-                tr_8f2a…k9m1
-              </span>
-            </div>
-
-            <div className="p-5 sm:p-6">
-              <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-start sm:gap-4">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium tracking-[-0.01em] text-zinc-950">
-                    Workflow receipt
-                  </p>
-                  <p className="mt-0.5 text-xs text-zinc-500">
-                    ECDSA P-256 · offline verification
-                  </p>
-                </div>
-                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-800">
-                  <span className="h-1 w-1 rounded-full bg-emerald-500" />
-                  Verified
-                </span>
-              </div>
-
-              <ul className="mt-5 divide-y divide-zinc-100 border-t border-zinc-100">
-                {PREVIEW_CHECKS.map((row) => (
-                  <li
-                    key={row.label}
-                    className="flex flex-col gap-0.5 py-2.5 text-[13px] sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-                  >
-                    <span className="text-zinc-500">{row.label}</span>
-                    <span className="font-mono text-xs text-zinc-700 sm:text-right">
-                      {row.value}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              <p className="mt-4 border-t border-zinc-100 pt-4 font-mono text-[10px] leading-relaxed text-zinc-400">
-                sig:3045…a1b2 · issued 2026-06-27T14:32:01Z
-              </p>
-            </div>
+          {/* Right column */}
+          <div className="mx-auto w-full max-w-lg lg:max-w-none">
+            <HeroWorkflowPreview />
           </div>
         </div>
       </div>
