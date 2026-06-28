@@ -41,6 +41,11 @@ export interface SignedTrustReceipt {
   provenanceRoot: string;
   merkleRoot?: string;     // explicit for demo theater (tamper visibly breaks this)
   observerSummary?: ObserverSummary;
+  /** Demo only: signature uses a fresh ephemeral keypair generated client-side.
+   *  Verification confirms no post-signing tamper but does not provide third-party provenance.
+   *  In a real system this would be signed by a long-lived server-controlled key.
+   */
+  signatureType?: 'demo-ephemeral-client';
 }
 
 type SignaturePayloadInput = {
@@ -120,7 +125,11 @@ export async function generateSignedReceipt(params: {
     enc.encode(payload)
   );
 
-  const signature = btoa(String.fromCharCode(...new Uint8Array(sigBuf)));
+  // Binary-safe base64 for the raw signature bytes (avoids atob/btoa latin1/unicode pitfalls on high bytes)
+  const sigBytesArr = new Uint8Array(sigBuf);
+  let binary = '';
+  for (let i = 0; i < sigBytesArr.length; i++) binary += String.fromCharCode(sigBytesArr[i]);
+  const signature = btoa(binary);
   const publicKeyJwk = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
 
   const merkleRoot = computeMerkleRoot(params.hashChain);
@@ -140,6 +149,7 @@ export async function generateSignedReceipt(params: {
     provenanceRoot: params.provenanceRoot || merkleRoot,
     merkleRoot,
     ...(params.observerSummary ? { observerSummary: params.observerSummary } : {}),
+    signatureType: 'demo-ephemeral-client',
   };
 }
 
@@ -167,7 +177,10 @@ export async function verifySignedReceipt(receipt: SignedTrustReceipt): Promise<
       ['verify']
     );
 
-    const sigBytes = Uint8Array.from(atob(receipt.signature), c => c.charCodeAt(0));
+    // Binary-safe decode (mirror of encode above)
+    const binary = atob(receipt.signature);
+    const sigBytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) sigBytes[i] = binary.charCodeAt(i);
 
     const valid = await crypto.subtle.verify(
       { name: 'ECDSA', hash: 'SHA-256' },

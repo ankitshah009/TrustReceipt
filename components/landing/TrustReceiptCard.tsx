@@ -207,7 +207,7 @@ function TrustReceiptCardComponent() {
             Run the workflow — agents execute in parallel with the Observer while Trust Runtime
             scores every step.
           </p>
-          <p className="mt-2 text-[11px] text-slate-600">ECDSA P-256 · offline verification</p>
+          <p className="mt-2 text-[11px] text-slate-600">ECDSA P-256 (demo: ephemeral client key) · offline verification</p>
         </div>
       </div>
     );
